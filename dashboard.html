@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Tracker - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Movie Tracker</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="stats.html">Estatísticas</a>
+                <button id="logoutBtn" class="btn btn-outline-light btn-sm ms-3">Sair</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Meus Filmes</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMovieModal">
+                <i class="fas fa-plus"></i> Adicionar Filme
+            </button>
+        </div>
+
+        <!-- Lista de Filmes -->
+        <div id="moviesContainer" class="row">
+            <!-- Filmes serão carregados aqui via JavaScript -->
+        </div>
+
+        <!-- Modal Adicionar Filme -->
+        <div class="modal fade" id="addMovieModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Adicionar Filme</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="movieForm">
+                            <input type="hidden" id="movieId">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Título *</label>
+                                <input type="text" class="form-control" id="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Status *</label>
+                                <select class="form-select" id="status" required>
+                                    <option value="assistido">Assistido</option>
+                                    <option value="nao_assistido">Não Assistido</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Nota (1-10)</label>
+                                <input type="number" class="form-control" id="rating" min="1" max="10">
+                            </div>
+                            <div class="mb-3">
+                                <label for="watchedDate" class="form-label">Data Assistido</label>
+                                <input type="date" class="form-control" id="watchedDate">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Salvar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
