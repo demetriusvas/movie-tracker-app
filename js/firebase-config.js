@@ -1,11 +1,12 @@
 // Configuração do Firebase
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyALgpv8ODob2U_zH1k03_cPSp0gVTSGCPw",
+  authDomain: "movie-tracker-app-840ec.firebaseapp.com",
+  projectId: "movie-tracker-app-840ec",
+  storageBucket: "movie-tracker-app-840ec.firebasestorage.app",
+  messagingSenderId: "812051314502",
+  appId: "1:812051314502:web:f1e390a0c59be54b2a5747",
+  measurementId: "G-TEYD33DYGB"
 };
 
 // Inicializar Firebase
