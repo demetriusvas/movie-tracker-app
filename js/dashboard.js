@@ -7,22 +7,32 @@ const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 // Função para buscar a capa do filme
 async function getMoviePoster(title) {
     // Verifica se a chave da API foi preenchida.
-    if (!TMDB_API_KEY || TMDB_API_KEY === 'SUA_CHAVE_API_AQUI') {
+    if (!TMDB_API_KEY || TMDB_API_KEY === '577e86ff6fa23f2befa26d0b5bb02a69') {
         console.warn('Chave da API do TMDb não configurada. Por favor, adicione sua chave em js/dashboard.js. A busca pela capa será ignorada.');
         return null;
     }
     const searchUrl = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&language=pt-BR`;
     try {
         const response = await fetch(searchUrl);
+
+        // **Verificação crucial de erro da API**
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({})); // Tenta ler a mensagem de erro da API
+            console.error(`Erro na API do TMDb: Status ${response.status}`, errorData.status_message || 'Nenhuma mensagem de erro adicional.');
+            // Um erro comum é 401 (Unauthorized), que significa que a chave da API é inválida ou não está ativa.
+            return null;
+        }
+
         const data = await response.json();
         if (data.results && data.results.length > 0 && data.results[0].poster_path) {
+            console.log(`Capa encontrada para "${title}"`);
             return `${TMDB_IMAGE_BASE_URL}${data.results[0].poster_path}`;
         }
-        // Adiciona um log para o caso de não encontrar o filme, ajudando a depurar
+        
         console.log(`Nenhuma capa encontrada na API para o filme: "${title}"`);
         return null; // Retorna nulo se não encontrar capa
     } catch (error) {
-        console.error('Erro ao buscar capa do filme:', error);
+        console.error('Erro de rede ou de parsing ao buscar capa do filme:', error);
         return null;
     }
 }
