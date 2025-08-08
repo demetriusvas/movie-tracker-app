@@ -93,7 +93,7 @@ function addMovieToDOM(movie, userId) {
     const posterUrl = movie.posterUrl || placeholderPoster;
 
     movieElement.innerHTML = `
-        <div class="card movie-card h-100">
+        <div class="card movie-card">
             <div class="movie-poster-container">
                 <img src="${posterUrl}" alt="Capa de ${movie.title}">
             </div>
