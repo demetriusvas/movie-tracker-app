@@ -7,8 +7,8 @@ const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 // Função para buscar a capa do filme
 async function getMoviePoster(title) {
     // Verifica se a chave da API foi preenchida.
-    if (!TMDB_API_KEY || TMDB_API_KEY === '577e86ff6fa23f2befa26d0b5bb02a69') {
-        console.warn('Chave da API do TMDb não configurada. A busca pela capa será ignorada.');
+    if (!TMDB_API_KEY || TMDB_API_KEY === 'SUA_CHAVE_API_AQUI') {
+        console.warn('Chave da API do TMDb não configurada. Por favor, adicione sua chave em js/dashboard.js. A busca pela capa será ignorada.');
         return null;
     }
     const searchUrl = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&language=pt-BR`;
@@ -116,6 +116,7 @@ function addMovieToDOM(movie) {
 // Editar filme
 function editMovie(movie) {
     document.getElementById('movieId').value = movie.id;
+    document.getElementById('originalTitle').value = movie.title; // Guarda o título original
     document.getElementById('title').value = movie.title;
     document.getElementById('status').value = movie.status;
     document.getElementById('rating').value = movie.rating || '';
@@ -182,12 +183,20 @@ function setupEventListeners(userId) {
         try {
             if (movieId) {
                 // Atualizar filme existente
+                const originalTitle = document.getElementById('originalTitle').value;
                 const movieDataToUpdate = {
                     title: title,
                     status: document.getElementById('status').value,
                     rating: document.getElementById('rating').value || null,
                     watchedDate: document.getElementById('watchedDate').value || null,
                 };
+
+                // Se o título mudou, busca a nova capa
+                if (title !== originalTitle) {
+                    const newPosterUrl = await getMoviePoster(title);
+                    movieDataToUpdate.posterUrl = newPosterUrl;
+                }
+
                 await db.collection('movies').doc(movieId).update(movieDataToUpdate);
             } else {
                 // Criar novo filme
@@ -224,5 +233,6 @@ function setupEventListeners(userId) {
     document.getElementById('addMovieModal')?.addEventListener('hidden.bs.modal', () => {
         document.getElementById('movieForm').reset();
         document.getElementById('movieId').value = '';
+        document.getElementById('originalTitle').value = '';
     });
 }
