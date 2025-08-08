@@ -94,7 +94,9 @@ function addMovieToDOM(movie, userId) {
 
     movieElement.innerHTML = `
         <div class="card movie-card h-100">
-            <img src="${posterUrl}" class="card-img-top" alt="Capa de ${movie.title}" style="height: 320px; object-fit: cover; border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);">
+            <div class="movie-poster-container">
+                <img src="${posterUrl}" alt="Capa de ${movie.title}">
+            </div>
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">${movie.title}</h5>
                 <div class="mt-auto">

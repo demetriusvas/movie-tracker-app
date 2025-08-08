@@ -93,3 +93,21 @@ body {
 .fade-in {
     animation: fadeIn 0.3s ease-in;
 }
+
+/* Estilos para a capa do filme */
+.movie-poster-container {
+    height: 320px;
+    background-color: #212529; /* Cor escura de fundo, igual a navbar */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-top-left-radius: var(--bs-card-inner-border-radius);
+    border-top-right-radius: var(--bs-card-inner-border-radius);
+}
+
+.movie-poster-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Garante que a imagem inteira apareça */
+}
