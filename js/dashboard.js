@@ -7,7 +7,7 @@ const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 // Função para buscar a capa do filme
 async function getMoviePoster(title) {
     // A chave '92d73e82010caecf59527cc2340eb85a' é um valor de exemplo. Substitua-a pela sua chave real.
-    if (!TMDB_API_KEY || TMDB_API_KEY === '577e86ff6fa23f2befa26d0b5bb02a69' || TMDB_API_KEY === '577e86ff6fa23f2befa26d0b5bb02a69') {
+    if (!TMDB_API_KEY || TMDB_API_KEY === '577e86ff6fa23f2befa26d0b5bb02a69') {
         console.warn('Chave da API do TMDb não configurada. Por favor, obtenha sua própria chave em themoviedb.org e a adicione em js/dashboard.js. A busca pela capa será ignorada.');
         return null;
     }
