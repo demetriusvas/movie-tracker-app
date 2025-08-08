@@ -96,24 +96,19 @@ function addMovieToDOM(movie, userId) {
         <div class="card movie-card">
             <div class="movie-poster-container">
                 <img src="${posterUrl}" alt="Capa de ${movie.title}">
-            </div>
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">${movie.title}</h5>
-                <div class="mt-auto">
-                    <span class="badge status-badge status-${movie.status}">
-                        ${movie.status === 'assistido' ? 'Assistido' : 'Não Assistido'}
-                    </span>
-                    ${movie.rating ? `<span class="badge rating-badge ms-2">${movie.rating}/10</span>` : ''}
-                    ${movie.watchedDate ? `<small class="d-block mt-2 text-muted">Assistido em: ${new Date(movie.watchedDate).toLocaleDateString()}</small>` : ''}
+                <div class="movie-card-actions">
+                    <button class="btn btn-sm btn-primary edit-btn" data-id="${movie.id}">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-sm btn-danger delete-btn mt-2" data-id="${movie.id}">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
                 </div>
             </div>
-            <div class="card-footer bg-transparent">
-                <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${movie.id}">
-                    <i class="fas fa-edit"></i> Editar
-                </button>
-                <button class="btn btn-sm btn-outline-danger delete-btn ms-2" data-id="${movie.id}">
-                    <i class="fas fa-trash"></i> Excluir
-                </button>
+            <div class="card-body">
+                <h6 class="card-title text-truncate" title="${movie.title}">${movie.title}</h6>
+                <span class="badge status-badge status-${movie.status}">${movie.status === 'assistido' ? 'Assistido' : 'Não Assistido'}</span>
+                ${movie.watchedDate ? `<small class="d-block text-muted mt-1">Visto em: ${new Date(movie.watchedDate).toLocaleDateString()}</small>` : ''}
             </div>
         </div>
     `;
