@@ -87,7 +87,7 @@ async function loadMovies(userId) {
 function addMovieToDOM(movie, userId) {
     const moviesContainer = document.getElementById('moviesContainer');
     const movieElement = document.createElement('div');
-    movieElement.className = 'col-md-6 col-lg-4 mb-4 fade-in';
+    movieElement.className = 'col-12 col-sm-6 col-md-4 col-lg-3 mb-4 fade-in';
 
     const placeholderPoster = 'https://placehold.co/500x750/212529/FFFFFF/png?text=Capa+Indispon%C3%ADvel';
     const posterUrl = movie.posterUrl || placeholderPoster;
