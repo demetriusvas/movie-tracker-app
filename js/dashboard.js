@@ -1,3 +1,29 @@
+// --- Configuração da API de Filmes (TMDb) ---
+// É necessário criar uma conta no site themoviedb.org e obter uma chave de API.
+const TMDB_API_KEY = '92d73e82010caecf59527cc2340eb85a'; // <-- SUBSTITUA PELA SUA CHAVE
+const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+
+// Função para buscar a capa do filme
+async function getMoviePoster(title) {
+    if (!TMDB_API_KEY || TMDB_API_KEY === '92d73e82010caecf59527cc2340eb85a') {
+        console.warn('Chave da API do TMDb não configurada. A busca pela capa será ignorada.');
+        return null;
+    }
+    const searchUrl = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&language=pt-BR`;
+    try {
+        const response = await fetch(searchUrl);
+        const data = await response.json();
+        if (data.results && data.results.length > 0 && data.results[0].poster_path) {
+            return `${TMDB_IMAGE_BASE_URL}${data.results[0].poster_path}`;
+        }
+        return null; // Retorna nulo se não encontrar capa
+    } catch (error) {
+        console.error('Erro ao buscar capa do filme:', error);
+        return null;
+    }
+}
+
 // Verificar autenticação
 auth.onAuthStateChanged(user => {
     if (!user) {
@@ -49,8 +75,13 @@ function addMovieToDOM(movie) {
     const moviesContainer = document.getElementById('moviesContainer');
     const movieElement = document.createElement('div');
     movieElement.className = 'col-md-6 col-lg-4 mb-4 fade-in';
+
+    const placeholderPoster = 'https://via.placeholder.com/500x750.png?text=Capa+Indispon%C3%ADvel';
+    const posterUrl = movie.posterUrl || placeholderPoster;
+
     movieElement.innerHTML = `
         <div class="card movie-card h-100">
+            <img src="${posterUrl}" class="card-img-top" alt="Capa de ${movie.title}" style="height: 320px; object-fit: cover; border-top-left-radius: var(--bs-card-inner-border-radius); border-top-right-radius: var(--bs-card-inner-border-radius);">
             <div class="card-body d-flex flex-column">
                 <h5 class="card-title">${movie.title}</h5>
                 <div class="mt-auto">
@@ -137,36 +168,52 @@ function setupEventListeners(userId) {
     document.getElementById('movieForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const saveButton = e.target.querySelector('button[type="submit"]');
+        const originalButtonText = saveButton.innerHTML;
+        saveButton.disabled = true;
+        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...';
+
         const movieId = document.getElementById('movieId').value;
-        const movieData = {
-            title: document.getElementById('title').value,
-            status: document.getElementById('status').value,
-            rating: document.getElementById('rating').value || null,
-            watchedDate: document.getElementById('watchedDate').value || null,
-            userId: userId,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
+        const title = document.getElementById('title').value;
         
         try {
             if (movieId) {
                 // Atualizar filme existente
-                await db.collection('movies').doc(movieId).update(movieData);
+                const movieDataToUpdate = {
+                    title: title,
+                    status: document.getElementById('status').value,
+                    rating: document.getElementById('rating').value || null,
+                    watchedDate: document.getElementById('watchedDate').value || null,
+                };
+                await db.collection('movies').doc(movieId).update(movieDataToUpdate);
             } else {
                 // Criar novo filme
+                const posterUrl = await getMoviePoster(title);
+                const movieData = {
+                    title: title,
+                    status: document.getElementById('status').value,
+                    rating: document.getElementById('rating').value || null,
+                    watchedDate: document.getElementById('watchedDate').value || null,
+                    userId: userId,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    posterUrl: posterUrl
+                };
                 await db.collection('movies').add(movieData);
             }
             
             // Fechar modal e resetar formulário
             const modal = bootstrap.Modal.getInstance(document.getElementById('addMovieModal'));
             modal.hide();
-            document.getElementById('movieForm').reset();
-            document.getElementById('movieId').value = '';
             
             // Recarregar filmes
             loadMovies(userId);
         } catch (error) {
             console.error('Erro ao salvar filme:', error);
             alert('Erro ao salvar filme');
+        }
+        finally {
+            saveButton.disabled = false;
+            saveButton.innerHTML = originalButtonText;
         }
     });
     
