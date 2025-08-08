@@ -7,8 +7,8 @@ const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 // Função para buscar a capa do filme
 async function getMoviePoster(title) {
     // Verifica se a chave da API foi preenchida.
-    if (!TMDB_API_KEY || TMDB_API_KEY === '577e86ff6fa23f2befa26d0b5bb02a69') {
-        console.warn('Chave da API do TMDb não configurada. Por favor, adicione sua chave em js/dashboard.js. A busca pela capa será ignorada.');
+    if (!TMDB_API_KEY || TMDB_API_KEY === 'SUA_CHAVE_API_AQUI') {
+        console.warn('Chave da API do TMDb não configurada. Por favor, adicione sua chave em js/dashboard.js ou substitua o valor de exemplo. A busca pela capa será ignorada.');
         return null;
     }
     const searchUrl = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&language=pt-BR`;
@@ -75,7 +75,7 @@ async function loadMovies(userId) {
         
         snapshot.forEach(doc => {
             const movie = { id: doc.id, ...doc.data() };
-            addMovieToDOM(movie);
+            addMovieToDOM(movie, userId);
         });
     } catch (error) {
         console.error('Erro ao carregar filmes:', error);
@@ -84,7 +84,7 @@ async function loadMovies(userId) {
 }
 
 // Adicionar filme ao DOM
-function addMovieToDOM(movie) {
+function addMovieToDOM(movie, userId) {
     const moviesContainer = document.getElementById('moviesContainer');
     const movieElement = document.createElement('div');
     movieElement.className = 'col-md-6 col-lg-4 mb-4 fade-in';
@@ -120,7 +120,7 @@ function addMovieToDOM(movie) {
     
     // Adicionar event listeners para os botões
     movieElement.querySelector('.edit-btn').addEventListener('click', () => editMovie(movie));
-    movieElement.querySelector('.delete-btn').addEventListener('click', () => deleteMovie(movie.id));
+    movieElement.querySelector('.delete-btn').addEventListener('click', () => deleteMovie(movie.id, userId));
 }
 
 // Editar filme
@@ -138,27 +138,12 @@ function editMovie(movie) {
 }
 
 // Excluir filme
-async function deleteMovie(movieId) {
+async function deleteMovie(movieId, userId) {
     if (confirm('Tem certeza que deseja excluir este filme?')) {
         try {
             await db.collection('movies').doc(movieId).delete();
-            
-            // Remover do DOM
-            const movieElement = document.querySelector(`[data-id="${movieId}"]`).closest('.col-md-6');
-            movieElement.remove();
-            
-            // Se não houver mais filmes, mostrar mensagem
-            const moviesContainer = document.getElementById('moviesContainer');
-            if (moviesContainer.children.length === 0) {
-                moviesContainer.innerHTML = `
-                    <div class="col-12 text-center">
-                        <p class="text-muted">Nenhum filme adicionado ainda</p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addMovieModal">
-                            Adicionar seu primeiro filme
-                        </button>
-                    </div>
-                `;
-            }
+            // Recarrega a lista de filmes para refletir a exclusão.
+            loadMovies(userId);
         } catch (error) {
             console.error('Erro ao excluir filme:', error);
             alert('Erro ao excluir filme');
