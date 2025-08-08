@@ -1,13 +1,14 @@
 // --- Configuração da API de Filmes (TMDb) ---
 // É necessário criar uma conta no site themoviedb.org e obter uma chave de API.
-const TMDB_API_KEY = '92d73e82010caecf59527cc2340eb85a'; // <-- SUBSTITUA PELA SUA CHAVE
+const TMDB_API_KEY = '577e86ff6fa23f2befa26d0b5bb02a69'; // <-- SUBSTITUA PELA SUA CHAVE
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
 // Função para buscar a capa do filme
 async function getMoviePoster(title) {
-    if (!TMDB_API_KEY || TMDB_API_KEY === '92d73e82010caecf59527cc2340eb85a') {
-        console.warn('Chave da API do TMDb não configurada. A busca pela capa será ignorada.');
+    // A chave '92d73e82010caecf59527cc2340eb85a' é um valor de exemplo. Substitua-a pela sua chave real.
+    if (!TMDB_API_KEY || TMDB_API_KEY === '577e86ff6fa23f2befa26d0b5bb02a69' || TMDB_API_KEY === '577e86ff6fa23f2befa26d0b5bb02a69') {
+        console.warn('Chave da API do TMDb não configurada. Por favor, obtenha sua própria chave em themoviedb.org e a adicione em js/dashboard.js. A busca pela capa será ignorada.');
         return null;
     }
     const searchUrl = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&language=pt-BR`;
@@ -76,7 +77,7 @@ function addMovieToDOM(movie) {
     const movieElement = document.createElement('div');
     movieElement.className = 'col-md-6 col-lg-4 mb-4 fade-in';
 
-    const placeholderPoster = 'https://via.placeholder.com/500x750.png?text=Capa+Indispon%C3%ADvel';
+    const placeholderPoster = 'https://placehold.co/500x750/212529/FFFFFF/png?text=Capa+Indispon%C3%ADvel';
     const posterUrl = movie.posterUrl || placeholderPoster;
 
     movieElement.innerHTML = `
