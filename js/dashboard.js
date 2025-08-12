@@ -214,30 +214,36 @@ function setupEventListeners(userId) {
 
                     if (!existingMovies.empty) {
                         alert('Este filme já está na sua lista!');
+                        container.style.display = 'none';
                         return;
                     }
 
+                    // Buscar detalhes do filme apenas uma vez
                     const movieDetails = await getMovieDetails(movieTitle);
-                    if (movieDetails) {
-                        // Limpar formulário antes de preencher
-                        document.getElementById('movieForm').reset();
-                        
-                        // Preencher o formulário com os detalhes corretos
-                        document.getElementById('tmdbId').value = movieDetails.tmdbId;
-                        document.getElementById('title').value = movieDetails.title;
-                        document.getElementById('originalTitle').value = movieDetails.originalTitle || movieDetails.title;
-                        document.getElementById('runtime').value = movieDetails.runtime || '';
-                        document.getElementById('genre').value = movieDetails.genre || '';
-                        document.getElementById('synopsis').value = movieDetails.synopsis || '';
-                        document.getElementById('movieSearch').value = movieDetails.title;
-                        
-                        // Guardar os dados da API temporariamente
-                        button.dataset.posterUrl = movieDetails.posterUrl || '';
-                        button.dataset.backdropUrl = movieDetails.backdropUrl || '';
-                        
-                        container.style.display = 'none';
-                        formFields.classList.remove('d-none');
+                    if (!movieDetails) {
+                        alert('Não foi possível carregar os detalhes do filme');
+                        return;
                     }
+
+                    // Limpar formulário antes de preencher
+                    const form = document.getElementById('movieForm');
+                    form.reset();
+                    
+                    // Preencher o formulário com os detalhes corretos
+                    document.getElementById('tmdbId').value = movieId;
+                    document.getElementById('title').value = movieDetails.title;
+                    document.getElementById('originalTitle').value = movieDetails.originalTitle || movieDetails.title;
+                    document.getElementById('runtime').value = movieDetails.runtime || '';
+                    document.getElementById('genre').value = movieDetails.genre || '';
+                    document.getElementById('synopsis').value = movieDetails.synopsis || '';
+                    document.getElementById('movieSearch').value = movieDetails.title;
+
+                    // Armazenar temporariamente os detalhes do filme no formulário
+                    form.dataset.posterUrl = movieDetails.posterUrl || '';
+                    form.dataset.backdropUrl = movieDetails.backdropUrl || '';
+                    
+                    container.style.display = 'none';
+                    formFields.classList.remove('d-none');
                 } catch (error) {
                     console.error('Erro ao buscar detalhes do filme:', error);
                     alert('Erro ao buscar detalhes do filme. Tente novamente.');
@@ -325,12 +331,13 @@ function setupEventListeners(userId) {
                     originalTitle: document.getElementById('originalTitle').value || title
                 };
 
-                // Adicionar URLs das imagens se disponíveis
-                if (selectedSuggestion) {
-                    movieData.posterUrl = selectedSuggestion.dataset.posterUrl || null;
-                    movieData.backdropUrl = selectedSuggestion.dataset.backdropUrl || null;
-                } else {
-                    // Se for entrada manual, tentar buscar as imagens
+                // Adicionar URLs das imagens do formulário
+                const form = document.getElementById('movieForm');
+                movieData.posterUrl = form.dataset.posterUrl || null;
+                movieData.backdropUrl = form.dataset.backdropUrl || null;
+
+                // Se não tiver imagens no formulário e for entrada manual, tentar buscar
+                if (!movieData.posterUrl && !movieData.backdropUrl) {
                     try {
                         const movieDetails = await getMovieDetails(title);
                         if (movieDetails) {

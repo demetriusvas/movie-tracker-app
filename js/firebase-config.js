@@ -10,8 +10,10 @@ const firebaseConfig = {
 };
 
 // Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 // Referências
 const auth = firebase.auth();
-const db = firebase.firestore();
+const db = firebase.firestore && firebase.firestore();
