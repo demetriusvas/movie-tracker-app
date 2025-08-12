@@ -53,21 +53,31 @@
                         <form id="movieForm">
                             <input type="hidden" id="movieId">
                             <input type="hidden" id="originalTitle">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="title" class="form-label">Título *</label>
-                                        <input type="text" class="form-control" id="title" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="runtime" class="form-label">Duração (minutos)</label>
-                                        <input type="number" class="form-control" id="runtime">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="genre" class="form-label">Gênero</label>
-                                        <input type="text" class="form-control" id="genre">
-                                    </div>
+                            <input type="hidden" id="tmdbId">
+                            <div class="mb-3">
+                                <label for="movieSearch" class="form-label">Buscar Filme *</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="movieSearch" placeholder="Digite o título do filme...">
+                                    <button class="btn btn-outline-secondary" type="button" id="manualEntryBtn">Entrada Manual</button>
                                 </div>
+                                <div id="movieSuggestions" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;"></div>
+                            </div>
+                            <div id="movieFormFields" class="d-none">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="title" class="form-label">Título *</label>
+                                            <input type="text" class="form-control" id="title" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="runtime" class="form-label">Duração (minutos)</label>
+                                            <input type="number" class="form-control" id="runtime">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="genre" class="form-label">Gênero</label>
+                                            <input type="text" class="form-control" id="genre">
+                                        </div>
+                                    </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="status" class="form-label">Status *</label>
@@ -140,6 +150,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/theme.js"></script>
+    <script src="js/tmdb-api.js"></script>
     <script src="js/movieDetails.js"></script>
     <script src="js/dashboard.js"></script>
 </body>

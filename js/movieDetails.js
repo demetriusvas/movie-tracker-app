@@ -1,4 +1,6 @@
 let currentMovie = null;
+let searchTimeout = null;
+let isManualEntry = false;
 
 // Função para formatar a data
 function formatDate(date) {
@@ -12,6 +14,102 @@ function formatRuntime(minutes) {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
     return `${hours}h ${remainingMinutes}min`;
+}
+
+// Função para inicializar o campo de busca
+function initializeMovieSearch() {
+    const searchInput = document.getElementById('movieSearch');
+    const suggestionsContainer = document.getElementById('movieSuggestions');
+    const formFields = document.getElementById('movieFormFields');
+    const manualEntryBtn = document.getElementById('manualEntryBtn');
+
+    searchInput.addEventListener('input', async (e) => {
+        if (isManualEntry) return;
+        
+        clearTimeout(searchTimeout);
+        const query = e.target.value.trim();
+
+        if (query.length < 3) {
+            suggestionsContainer.style.display = 'none';
+            return;
+        }
+
+        searchTimeout = setTimeout(async () => {
+            const suggestions = await searchMovieSuggestions(query);
+            displayMovieSuggestions(suggestions);
+        }, 300);
+    });
+
+    manualEntryBtn.addEventListener('click', () => {
+        isManualEntry = !isManualEntry;
+        if (isManualEntry) {
+            formFields.classList.remove('d-none');
+            suggestionsContainer.style.display = 'none';
+            manualEntryBtn.textContent = 'Usar Busca';
+            searchInput.value = '';
+        } else {
+            formFields.classList.add('d-none');
+            manualEntryBtn.textContent = 'Entrada Manual';
+        }
+    });
+}
+
+// Função para exibir sugestões de filmes
+function displayMovieSuggestions(suggestions) {
+    const container = document.getElementById('movieSuggestions');
+    
+    if (!suggestions || suggestions.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    container.innerHTML = suggestions.map(movie => `
+        <button type="button" class="list-group-item list-group-item-action movie-suggestion" 
+                data-movie-id="${movie.id}">
+            <div class="d-flex align-items-center">
+                ${movie.posterUrl ? 
+                    `<img src="${movie.posterUrl}" alt="${movie.title}" style="width: 50px; margin-right: 10px;">` :
+                    '<div style="width: 50px; height: 75px; background-color: #eee; margin-right: 10px;"></div>'}
+                <div>
+                    <strong>${movie.title}</strong>
+                    ${movie.releaseDate ? `<br><small>${movie.releaseDate}</small>` : ''}
+                </div>
+            </div>
+        </button>
+    `).join('');
+
+    container.style.display = 'block';
+
+    // Adicionar event listeners para as sugestões
+    container.querySelectorAll('.movie-suggestion').forEach(button => {
+        button.addEventListener('click', async () => {
+            const movieId = button.dataset.movieId;
+            const movieDetails = await getMovieDetails(button.querySelector('strong').textContent);
+            if (movieDetails) {
+                fillMovieForm(movieDetails);
+                container.style.display = 'none';
+                document.getElementById('movieFormFields').classList.remove('d-none');
+            }
+        });
+    });
+}
+
+// Função para preencher o formulário com os detalhes do filme
+function fillMovieForm(movieDetails) {
+    document.getElementById('tmdbId').value = movieDetails.tmdbId;
+    document.getElementById('title').value = movieDetails.title;
+    document.getElementById('originalTitle').value = movieDetails.originalTitle;
+    document.getElementById('runtime').value = movieDetails.runtime || '';
+    document.getElementById('genre').value = movieDetails.genre || '';
+    document.getElementById('synopsis').value = movieDetails.synopsis || '';
+    
+    // Preencher campos adicionais se existirem
+    if (movieDetails.releaseDate) {
+        const releaseDateInput = document.getElementById('releaseDate');
+        if (releaseDateInput) {
+            releaseDateInput.value = movieDetails.releaseDate;
+        }
+    }
 }
 
 // Função para mostrar detalhes do filme

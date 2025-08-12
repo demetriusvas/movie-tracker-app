@@ -175,33 +175,49 @@ function setupEventListeners(userId) {
         try {
             if (movieId) {
                 // Atualizar filme existente
-                const originalTitle = document.getElementById('originalTitle').value;
                 const movieDataToUpdate = {
                     title: title,
                     status: document.getElementById('status').value,
                     rating: document.getElementById('rating').value || null,
                     watchedDate: document.getElementById('watchedDate').value || null,
+                    runtime: document.getElementById('runtime').value || null,
+                    genre: document.getElementById('genre').value || null,
+                    synopsis: document.getElementById('synopsis').value || null,
+                    tmdbId: document.getElementById('tmdbId').value || null,
                 };
-
-                // Se o título mudou, busca a nova capa
-                if (title !== originalTitle) {
-                    const newPosterUrl = await getMoviePoster(title);
-                    movieDataToUpdate.posterUrl = newPosterUrl;
-                }
 
                 await db.collection('movies').doc(movieId).update(movieDataToUpdate);
             } else {
                 // Criar novo filme
-                const posterUrl = await getMoviePoster(title);
-                const movieData = {
+                let movieData = {
                     title: title,
                     status: document.getElementById('status').value,
                     rating: document.getElementById('rating').value || null,
                     watchedDate: document.getElementById('watchedDate').value || null,
+                    runtime: document.getElementById('runtime').value || null,
+                    genre: document.getElementById('genre').value || null,
+                    synopsis: document.getElementById('synopsis').value || null,
+                    tmdbId: document.getElementById('tmdbId').value || null,
                     userId: userId,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    posterUrl: posterUrl
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
+
+                // Se não for entrada manual, busca detalhes completos do filme
+                if (!isManualEntry) {
+                    const movieDetails = await getMovieDetails(title);
+                    if (movieDetails) {
+                        movieData = {
+                            ...movieData,
+                            originalTitle: movieDetails.originalTitle,
+                            posterUrl: movieDetails.posterUrl,
+                            backdropUrl: movieDetails.backdropUrl,
+                            releaseDate: movieDetails.releaseDate,
+                            tmdbRating: movieDetails.rating,
+                            popularity: movieDetails.popularity
+                        };
+                    }
+                }
+
                 await db.collection('movies').add(movieData);
             }
             
