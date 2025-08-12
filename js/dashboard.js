@@ -1,41 +1,13 @@
-// --- Configuração da API de Filmes (TMDb) ---
-// É necessário criar uma conta no site themoviedb.org e obter uma chave de API.
-const TMDB_API_KEY = '577e86ff6fa23f2befa26d0b5bb02a69'; // <-- SUBSTITUA PELA SUA CHAVE
-const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
-const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
-
-// Função para buscar a capa do filme
-async function getMoviePoster(title) {
-    // Verifica se a chave da API foi preenchida.
-    if (!TMDB_API_KEY || TMDB_API_KEY === 'SUA_CHAVE_API_AQUI') {
-        console.warn('Chave da API do TMDb não configurada. Por favor, adicione sua chave em js/dashboard.js ou substitua o valor de exemplo. A busca pela capa será ignorada.');
-        return null;
+// Verificar autenticação
+auth.onAuthStateChanged(user => {
+    if (!user) {
+        window.location.href = 'index.html';
+        return;
     }
-    const searchUrl = `${TMDB_BASE_URL}/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}&language=pt-BR`;
-    try {
-        const response = await fetch(searchUrl);
-
-        // **Verificação crucial de erro da API**
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({})); // Tenta ler a mensagem de erro da API
-            console.error(`Erro na API do TMDb: Status ${response.status}`, errorData.status_message || 'Nenhuma mensagem de erro adicional.');
-            // Um erro comum é 401 (Unauthorized), que significa que a chave da API é inválida ou não está ativa.
-            return null;
-        }
-
-        const data = await response.json();
-        if (data.results && data.results.length > 0 && data.results[0].poster_path) {
-            console.log(`Capa encontrada para "${title}"`);
-            return `${TMDB_IMAGE_BASE_URL}${data.results[0].poster_path}`;
-        }
-        
-        console.log(`Nenhuma capa encontrada na API para o filme: "${title}"`);
-        return null; // Retorna nulo se não encontrar capa
-    } catch (error) {
-        console.error('Erro de rede ou de parsing ao buscar capa do filme:', error);
-        return null;
-    }
-}
+    
+    loadMovies(user.uid);
+    setupEventListeners(user.uid);
+});
 
 // Verificar autenticação
 auth.onAuthStateChanged(user => {
@@ -94,7 +66,7 @@ function addMovieToDOM(movie, userId) {
 
     movieElement.innerHTML = `
         <div class="card movie-card">
-            <div class="movie-poster-container">
+            <div class="movie-poster-container" style="cursor: pointer;">
                 <img src="${posterUrl}" alt="Capa de ${movie.title}">
                 <div class="movie-card-actions">
                     <button class="btn btn-sm btn-primary edit-btn" data-id="${movie.id}">
@@ -115,9 +87,19 @@ function addMovieToDOM(movie, userId) {
     
     moviesContainer.appendChild(movieElement);
     
-    // Adicionar event listeners para os botões
-    movieElement.querySelector('.edit-btn').addEventListener('click', () => editMovie(movie));
-    movieElement.querySelector('.delete-btn').addEventListener('click', () => deleteMovie(movie.id, userId));
+    // Adicionar event listeners
+    const posterContainer = movieElement.querySelector('.movie-poster-container');
+    posterContainer.addEventListener('click', () => showMovieDetails(movie));
+    
+    movieElement.querySelector('.edit-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        editMovie(movie);
+    });
+    
+    movieElement.querySelector('.delete-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteMovie(movie.id, userId);
+    });
 }
 
 // Editar filme
