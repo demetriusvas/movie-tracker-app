@@ -15,6 +15,9 @@
         <div class="container">
             <a class="navbar-brand" href="#">Movie Tracker</a>
             <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="dashboard.html">Todos os Filmes</a>
+                <a class="nav-link" href="watched.html">Assistidos</a>
+                <a class="nav-link" href="unwatched.html">Não Assistidos</a>
                 <a class="nav-link" href="stats.html">Estatísticas</a>
                 <button id="themeToggle" class="theme-toggle">
                     <i class="fas fa-sun"></i>
@@ -38,9 +41,9 @@
             <!-- Filmes serão carregados aqui via JavaScript -->
         </div>
 
-        <!-- Modal Adicionar Filme -->
+        <!-- Modal Adicionar/Editar Filme -->
         <div class="modal fade" id="addMovieModal" tabindex="-1">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Adicionar Filme</h5>
@@ -50,27 +53,81 @@
                         <form id="movieForm">
                             <input type="hidden" id="movieId">
                             <input type="hidden" id="originalTitle">
-                            <div class="mb-3">
-                                <label for="title" class="form-label">Título *</label>
-                                <input type="text" class="form-control" id="title" required>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="title" class="form-label">Título *</label>
+                                        <input type="text" class="form-control" id="title" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="runtime" class="form-label">Duração (minutos)</label>
+                                        <input type="number" class="form-control" id="runtime">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="genre" class="form-label">Gênero</label>
+                                        <input type="text" class="form-control" id="genre">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="status" class="form-label">Status *</label>
+                                        <select class="form-select" id="status" required>
+                                            <option value="assistido">Assistido</option>
+                                            <option value="nao_assistido">Não Assistido</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="rating" class="form-label">Nota (1-10)</label>
+                                        <input type="number" class="form-control" id="rating" min="1" max="10">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="watchedDate" class="form-label">Data Assistido</label>
+                                        <input type="date" class="form-control" id="watchedDate">
+                                    </div>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <label for="status" class="form-label">Status *</label>
-                                <select class="form-select" id="status" required>
-                                    <option value="assistido">Assistido</option>
-                                    <option value="nao_assistido">Não Assistido</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="rating" class="form-label">Nota (1-10)</label>
-                                <input type="number" class="form-control" id="rating" min="1" max="10">
-                            </div>
-                            <div class="mb-3">
-                                <label for="watchedDate" class="form-label">Data Assistido</label>
-                                <input type="date" class="form-control" id="watchedDate">
+                                <label for="synopsis" class="form-label">Sinopse</label>
+                                <textarea class="form-control" id="synopsis" rows="3"></textarea>
                             </div>
                             <button type="submit" class="btn btn-primary">Salvar</button>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Detalhes do Filme -->
+        <div class="modal fade" id="movieDetailsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalhes do Filme</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img id="movieDetailsPoster" src="" alt="Poster do filme" class="img-fluid mb-3">
+                            </div>
+                            <div class="col-md-8">
+                                <h4 id="movieDetailsTitle"></h4>
+                                <p><strong>Gênero:</strong> <span id="movieDetailsGenre"></span></p>
+                                <p><strong>Duração:</strong> <span id="movieDetailsRuntime"></span></p>
+                                <p><strong>Status:</strong> <span id="movieDetailsStatus"></span></p>
+                                <p><strong>Nota:</strong> <span id="movieDetailsRating"></span></p>
+                                <p><strong>Data assistido:</strong> <span id="movieDetailsWatchedDate"></span></p>
+                                <div class="mt-3">
+                                    <h5>Sinopse</h5>
+                                    <p id="movieDetailsSynopsis"></p>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="btn btn-primary" id="editMovieBtn">Editar</button>
+                                    <button class="btn btn-danger ms-2" id="deleteMovieBtn">Excluir</button>
+                                    <button class="btn btn-success ms-2" id="toggleStatusBtn">Marcar como Assistido</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -83,6 +140,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
     <script src="js/theme.js"></script>
+    <script src="js/movieDetails.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Tracker - Filmes Assistidos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Movie Tracker</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="dashboard.html">Todos os Filmes</a>
+                <a class="nav-link active" href="watched.html">Assistidos</a>
+                <a class="nav-link" href="unwatched.html">Não Assistidos</a>
+                <a class="nav-link" href="stats.html">Estatísticas</a>
+                <button id="themeToggle" class="theme-toggle">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button id="logoutBtn" class="btn btn-outline-light btn-sm ms-3">Sair</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>Filmes Assistidos</h2>
+        <div id="moviesContainer" class="row">
+            <!-- Filmes serão carregados aqui via JavaScript -->
+        </div>
+    </div>
+
+    <!-- Incluir o modal de detalhes aqui (mesmo código do dashboard.html) -->
+    <div class="modal fade" id="movieDetailsModal" tabindex="-1">
+        <!-- ... (mesmo código do modal de detalhes do dashboard.html) ... -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/watched.js"></script>
+</body>
+</html>
