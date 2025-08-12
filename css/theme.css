@@ -1,0 +1,78 @@
+/* Theme variables */
+:root[data-theme="dark"] {
+    --bg-primary: #212529;
+    --bg-secondary: #343a40;
+    --text-primary: #ffffff;
+    --text-secondary: #e9ecef;
+    --card-bg: #343a40;
+    --card-border: #495057;
+    --nav-bg: #212529;
+}
+
+:root[data-theme="light"] {
+    --bg-primary: #f8f9fa;
+    --bg-secondary: #ffffff;
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --card-bg: #ffffff;
+    --card-border: #dee2e6;
+    --nav-bg: #343a40;
+}
+
+/* Apply theme colors */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar {
+    background-color: var(--nav-bg) !important;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-primary);
+}
+
+.modal-content {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.modal-header {
+    border-bottom-color: var(--card-border);
+}
+
+.modal-footer {
+    border-top-color: var(--card-border);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: #ffffff;
+    padding: 0.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-toggle:hover {
+    opacity: 0.8;
+}
+
+/* Input fields in dark mode */
+[data-theme="dark"] .form-control {
+    background-color: var(--bg-secondary);
+    border-color: var(--card-border);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-control:focus {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
