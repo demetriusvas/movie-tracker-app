@@ -184,7 +184,7 @@ function setupEventListeners(userId) {
 
         container.innerHTML = suggestions.map(movie => `
             <button type="button" class="list-group-item list-group-item-action movie-suggestion" 
-                    data-movie-id="${movie.id}">
+                    data-movie-id="${movie.id}" data-movie-title="${movie.title}">
                 <div class="d-flex align-items-center">
                     ${movie.posterUrl ? 
                         `<img src="${movie.posterUrl}" alt="${movie.title}" style="width: 50px; margin-right: 10px;">` :
@@ -203,21 +203,44 @@ function setupEventListeners(userId) {
         container.querySelectorAll('.movie-suggestion').forEach(button => {
             button.addEventListener('click', async () => {
                 const movieId = button.dataset.movieId;
-                const movieDetails = await getMovieDetails(button.querySelector('strong').textContent);
-                if (movieDetails) {
-                    // Limpar formulário antes de preencher
-                    document.getElementById('movieForm').reset();
-                    
-                    // Preencher o formulário com os detalhes corretos
-                    document.getElementById('tmdbId').value = movieDetails.tmdbId;
-                    document.getElementById('title').value = movieDetails.title;
-                    document.getElementById('originalTitle').value = movieDetails.originalTitle || movieDetails.title;
-                    document.getElementById('runtime').value = movieDetails.runtime || '';
-                    document.getElementById('genre').value = movieDetails.genre || '';
-                    document.getElementById('synopsis').value = movieDetails.synopsis || '';
-                    
-                    container.style.display = 'none';
-                    formFields.classList.remove('d-none');
+                const movieTitle = button.dataset.movieTitle;
+
+                try {
+                    // Verificar se o filme já existe
+                    const existingMovies = await db.collection('movies')
+                        .where('userId', '==', firebase.auth().currentUser.uid)
+                        .where('tmdbId', '==', movieId)
+                        .get();
+
+                    if (!existingMovies.empty) {
+                        alert('Este filme já está na sua lista!');
+                        return;
+                    }
+
+                    const movieDetails = await getMovieDetails(movieTitle);
+                    if (movieDetails) {
+                        // Limpar formulário antes de preencher
+                        document.getElementById('movieForm').reset();
+                        
+                        // Preencher o formulário com os detalhes corretos
+                        document.getElementById('tmdbId').value = movieDetails.tmdbId;
+                        document.getElementById('title').value = movieDetails.title;
+                        document.getElementById('originalTitle').value = movieDetails.originalTitle || movieDetails.title;
+                        document.getElementById('runtime').value = movieDetails.runtime || '';
+                        document.getElementById('genre').value = movieDetails.genre || '';
+                        document.getElementById('synopsis').value = movieDetails.synopsis || '';
+                        document.getElementById('movieSearch').value = movieDetails.title;
+                        
+                        // Guardar os dados da API temporariamente
+                        button.dataset.posterUrl = movieDetails.posterUrl || '';
+                        button.dataset.backdropUrl = movieDetails.backdropUrl || '';
+                        
+                        container.style.display = 'none';
+                        formFields.classList.remove('d-none');
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar detalhes do filme:', error);
+                    alert('Erro ao buscar detalhes do filme. Tente novamente.');
                 }
             });
         });
@@ -286,6 +309,8 @@ function setupEventListeners(userId) {
                 }
 
                 // Criar novo filme
+                const selectedSuggestion = document.querySelector('.movie-suggestion[data-movie-id="' + selectedMovieId + '"]');
+                
                 let movieData = {
                     title: title,
                     status: document.getElementById('status').value,
@@ -296,17 +321,25 @@ function setupEventListeners(userId) {
                     synopsis: document.getElementById('synopsis').value || null,
                     tmdbId: selectedMovieId || null,
                     userId: userId,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    originalTitle: document.getElementById('originalTitle').value || title
                 };
 
-                // Buscar detalhes do TMDb se tivermos um ID
-                if (selectedMovieId) {
-                    movieData = {
-                        ...movieData,
-                        posterUrl: null,
-                        backdropUrl: null,
-                        originalTitle: document.getElementById('originalTitle').value || title
-                    };
+                // Adicionar URLs das imagens se disponíveis
+                if (selectedSuggestion) {
+                    movieData.posterUrl = selectedSuggestion.dataset.posterUrl || null;
+                    movieData.backdropUrl = selectedSuggestion.dataset.backdropUrl || null;
+                } else {
+                    // Se for entrada manual, tentar buscar as imagens
+                    try {
+                        const movieDetails = await getMovieDetails(title);
+                        if (movieDetails) {
+                            movieData.posterUrl = movieDetails.posterUrl;
+                            movieData.backdropUrl = movieDetails.backdropUrl;
+                        }
+                    } catch (error) {
+                        console.error('Erro ao buscar imagens do filme:', error);
+                    }
                 }
 
                 await db.collection('movies').add(movieData);
