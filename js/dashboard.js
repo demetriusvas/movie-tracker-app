@@ -202,9 +202,20 @@ function setupEventListeners(userId) {
         // Adicionar event listeners para as sugestões
         container.querySelectorAll('.movie-suggestion').forEach(button => {
             button.addEventListener('click', async () => {
+                const movieId = button.dataset.movieId;
                 const movieDetails = await getMovieDetails(button.querySelector('strong').textContent);
                 if (movieDetails) {
-                    fillMovieForm(movieDetails);
+                    // Limpar formulário antes de preencher
+                    document.getElementById('movieForm').reset();
+                    
+                    // Preencher o formulário com os detalhes corretos
+                    document.getElementById('tmdbId').value = movieDetails.tmdbId;
+                    document.getElementById('title').value = movieDetails.title;
+                    document.getElementById('originalTitle').value = movieDetails.originalTitle || movieDetails.title;
+                    document.getElementById('runtime').value = movieDetails.runtime || '';
+                    document.getElementById('genre').value = movieDetails.genre || '';
+                    document.getElementById('synopsis').value = movieDetails.synopsis || '';
+                    
                     container.style.display = 'none';
                     formFields.classList.remove('d-none');
                 }
@@ -243,6 +254,7 @@ function setupEventListeners(userId) {
 
         const movieId = document.getElementById('movieId').value;
         const title = document.getElementById('title').value;
+        const selectedMovieId = document.getElementById('tmdbId').value;
         
         try {
             if (movieId) {
@@ -260,6 +272,19 @@ function setupEventListeners(userId) {
 
                 await db.collection('movies').doc(movieId).update(movieDataToUpdate);
             } else {
+                // Verificar se já existe um filme com o mesmo TMDb ID
+                if (selectedMovieId) {
+                    const existingMovie = await db.collection('movies')
+                        .where('userId', '==', userId)
+                        .where('tmdbId', '==', selectedMovieId)
+                        .get();
+
+                    if (!existingMovie.empty) {
+                        alert('Este filme já está na sua lista!');
+                        return;
+                    }
+                }
+
                 // Criar novo filme
                 let movieData = {
                     title: title,
@@ -269,25 +294,19 @@ function setupEventListeners(userId) {
                     runtime: document.getElementById('runtime').value || null,
                     genre: document.getElementById('genre').value || null,
                     synopsis: document.getElementById('synopsis').value || null,
-                    tmdbId: document.getElementById('tmdbId').value || null,
+                    tmdbId: selectedMovieId || null,
                     userId: userId,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                // Se não for entrada manual, busca detalhes completos do filme
-                if (!isManualEntry) {
-                    const movieDetails = await getMovieDetails(title);
-                    if (movieDetails) {
-                        movieData = {
-                            ...movieData,
-                            originalTitle: movieDetails.originalTitle,
-                            posterUrl: movieDetails.posterUrl,
-                            backdropUrl: movieDetails.backdropUrl,
-                            releaseDate: movieDetails.releaseDate,
-                            tmdbRating: movieDetails.rating,
-                            popularity: movieDetails.popularity
-                        };
-                    }
+                // Buscar detalhes do TMDb se tivermos um ID
+                if (selectedMovieId) {
+                    movieData = {
+                        ...movieData,
+                        posterUrl: null,
+                        backdropUrl: null,
+                        originalTitle: document.getElementById('originalTitle').value || title
+                    };
                 }
 
                 await db.collection('movies').add(movieData);
