@@ -103,17 +103,37 @@ function addMovieToDOM(movie, userId) {
 }
 
 // Editar filme
-function editMovie(movie) {
-    document.getElementById('movieId').value = movie.id;
-    document.getElementById('originalTitle').value = movie.title; // Guarda o título original
-    document.getElementById('title').value = movie.title;
-    document.getElementById('status').value = movie.status;
-    document.getElementById('rating').value = movie.rating || '';
-    document.getElementById('watchedDate').value = movie.watchedDate || '';
-    
-    // Abrir modal
-    const modal = new bootstrap.Modal(document.getElementById('addMovieModal'));
-    modal.show();
+async function editMovie(movie) {
+    try {
+        const form = document.getElementById('movieForm');
+        form.reset();
+
+        // Preencher o formulário com os dados do filme
+        document.getElementById('movieId').value = movie.id;
+        document.getElementById('tmdbId').value = movie.tmdbId || '';
+        document.getElementById('title').value = movie.title;
+        document.getElementById('originalTitle').value = movie.originalTitle || movie.title;
+        document.getElementById('genre').value = movie.genre || '';
+        document.getElementById('runtime').value = movie.runtime || '';
+        document.getElementById('status').value = movie.status || 'nao_assistido';
+        document.getElementById('rating').value = movie.rating || '';
+        document.getElementById('watchedDate').value = movie.watchedDate || '';
+        document.getElementById('synopsis').value = movie.synopsis || '';
+        
+        // Armazenar URLs das imagens no formulário
+        form.dataset.posterUrl = movie.posterUrl || '';
+        form.dataset.backdropUrl = movie.backdropUrl || '';
+
+        // Atualizar título do modal
+        document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
+        
+        // Abrir modal
+        const modal = new bootstrap.Modal(document.getElementById('addMovieModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Erro ao abrir formulário de edição:', error);
+        alert('Erro ao abrir formulário de edição. Tente novamente.');
+    }
 }
 
 // Excluir filme
@@ -276,102 +296,133 @@ function setupEventListeners(userId) {
     document.getElementById('movieForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const saveButton = e.target.querySelector('button[type="submit"]');
+        const form = e.target;
+        const saveButton = form.querySelector('button[type="submit"]');
         const originalButtonText = saveButton.innerHTML;
-        saveButton.disabled = true;
-        saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...';
-
-        const movieId = document.getElementById('movieId').value;
-        const title = document.getElementById('title').value;
-        const selectedMovieId = document.getElementById('tmdbId').value;
         
         try {
+            saveButton.disabled = true;
+            saveButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Salvando...';
+
+            const movieId = form.querySelector('#movieId').value;
+            const title = form.querySelector('#title').value.trim();
+            const selectedMovieId = form.querySelector('#tmdbId').value;
+            
+            if (!title) {
+                alert('O título do filme é obrigatório');
+                return;
+            }
+
+            let movieData = {
+                title: title,
+                originalTitle: form.querySelector('#originalTitle').value.trim() || title,
+                status: form.querySelector('#status').value,
+                rating: form.querySelector('#rating').value || null,
+                watchedDate: form.querySelector('#watchedDate').value || null,
+                runtime: form.querySelector('#runtime').value || null,
+                genre: form.querySelector('#genre').value || null,
+                synopsis: form.querySelector('#synopsis').value || null,
+                tmdbId: selectedMovieId || null,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
             if (movieId) {
                 // Atualizar filme existente
-                const movieDataToUpdate = {
-                    title: title,
-                    status: document.getElementById('status').value,
-                    rating: document.getElementById('rating').value || null,
-                    watchedDate: document.getElementById('watchedDate').value || null,
-                    runtime: document.getElementById('runtime').value || null,
-                    genre: document.getElementById('genre').value || null,
-                    synopsis: document.getElementById('synopsis').value || null,
-                    tmdbId: document.getElementById('tmdbId').value || null,
-                };
-
-                await db.collection('movies').doc(movieId).update(movieDataToUpdate);
+                await db.collection('movies').doc(movieId).update(movieData);
             } else {
-                // Verificar se já existe um filme com o mesmo TMDb ID
-                if (selectedMovieId) {
-                    const existingMovie = await db.collection('movies')
+                // Verificar duplicidade pelo TMDb ID ou título
+                const duplicateCheck = selectedMovieId 
+                    ? db.collection('movies')
                         .where('userId', '==', userId)
                         .where('tmdbId', '==', selectedMovieId)
+                        .get()
+                    : db.collection('movies')
+                        .where('userId', '==', userId)
+                        .where('title', '==', title)
                         .get();
 
-                    if (!existingMovie.empty) {
-                        alert('Este filme já está na sua lista!');
-                        return;
-                    }
+                const existingMovie = await duplicateCheck;
+                if (!existingMovie.empty) {
+                    alert('Este filme já está na sua lista!');
+                    return;
                 }
 
-                // Criar novo filme
-                const selectedSuggestion = document.querySelector('.movie-suggestion[data-movie-id="' + selectedMovieId + '"]');
-                
-                let movieData = {
-                    title: title,
-                    status: document.getElementById('status').value,
-                    rating: document.getElementById('rating').value || null,
-                    watchedDate: document.getElementById('watchedDate').value || null,
-                    runtime: document.getElementById('runtime').value || null,
-                    genre: document.getElementById('genre').value || null,
-                    synopsis: document.getElementById('synopsis').value || null,
-                    tmdbId: selectedMovieId || null,
+                // Adicionar campos específicos para novo filme
+                movieData = {
+                    ...movieData,
                     userId: userId,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    originalTitle: document.getElementById('originalTitle').value || title
+                    posterUrl: form.dataset.posterUrl || null,
+                    backdropUrl: form.dataset.backdropUrl || null
                 };
-
-                // Adicionar URLs das imagens do formulário
-                const form = document.getElementById('movieForm');
-                movieData.posterUrl = form.dataset.posterUrl || null;
-                movieData.backdropUrl = form.dataset.backdropUrl || null;
-
-                // Se não tiver imagens no formulário e for entrada manual, tentar buscar
-                if (!movieData.posterUrl && !movieData.backdropUrl) {
-                    try {
-                        const movieDetails = await getMovieDetails(title);
-                        if (movieDetails) {
-                            movieData.posterUrl = movieDetails.posterUrl;
-                            movieData.backdropUrl = movieDetails.backdropUrl;
-                        }
-                    } catch (error) {
-                        console.error('Erro ao buscar imagens do filme:', error);
-                    }
-                }
 
                 await db.collection('movies').add(movieData);
             }
             
-            // Fechar modal e resetar formulário
+            // Fechar modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('addMovieModal'));
-            modal.hide();
+            if (modal) {
+                modal.hide();
+            }
+
+            // Limpar o formulário
+            form.reset();
+            form.querySelector('#movieId').value = '';
+            form.querySelector('#tmdbId').value = '';
+            form.dataset.posterUrl = '';
+            form.dataset.backdropUrl = '';
             
             // Recarregar filmes
             loadMovies(userId);
         } catch (error) {
             console.error('Erro ao salvar filme:', error);
-            alert('Erro ao salvar filme');
-        }
-        finally {
+            alert('Erro ao salvar filme. Por favor, tente novamente.');
+        } finally {
             saveButton.disabled = false;
             saveButton.innerHTML = originalButtonText;
         }
     });
     
-    // Resetar formulário quando o modal é fechado
-    document.getElementById('addMovieModal')?.addEventListener('hidden.bs.modal', () => {
-        document.getElementById('movieForm').reset();
-        document.getElementById('movieId').value = '';
-        document.getElementById('originalTitle').value = '';
-    });
+    // Gerenciamento do modal
+    const addMovieModal = document.getElementById('addMovieModal');
+    if (addMovieModal) {
+        // Quando o modal é aberto
+        addMovieModal.addEventListener('show.bs.modal', () => {
+            // Resetar o formulário
+            const form = document.getElementById('movieForm');
+            form.reset();
+            form.querySelector('#movieId').value = '';
+            form.querySelector('#tmdbId').value = '';
+            form.dataset.posterUrl = '';
+            form.dataset.backdropUrl = '';
+
+            // Resetar a busca
+            document.getElementById('movieSearch').value = '';
+            document.getElementById('movieSuggestions').style.display = 'none';
+        });
+
+        // Quando o modal é fechado
+        addMovieModal.addEventListener('hidden.bs.modal', () => {
+            // Remover o foco de qualquer elemento dentro do modal
+            document.activeElement.blur();
+            
+            // Resetar o título do modal
+            document.querySelector('#addMovieModal .modal-title').textContent = 'Adicionar Filme';
+
+            // Esconder campos do formulário e mostrar busca
+            document.getElementById('movieFormFields').classList.add('d-none');
+            document.getElementById('manualEntryBtn').textContent = 'Entrada Manual';
+        });
+
+        // Configurar o botão de fechar para usar inert ao invés de aria-hidden
+        const closeButton = addMovieModal.querySelector('.btn-close');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                const modal = bootstrap.Modal.getInstance(addMovieModal);
+                if (modal) {
+                    modal.hide();
+                }
+            });
+        }
+    }
 }
