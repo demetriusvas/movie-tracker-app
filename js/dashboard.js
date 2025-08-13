@@ -107,8 +107,8 @@ async function editMovie(movie) {
     try {
         const form = document.getElementById('movieForm');
         form.reset();
-
-        // Preencher o formulário com os dados do filme
+        document.getElementById('movieFormFields').classList.remove('d-none');
+        document.getElementById('movieSearch').value = movie.title;
         document.getElementById('movieId').value = movie.id;
         document.getElementById('tmdbId').value = movie.tmdbId || '';
         document.getElementById('title').value = movie.title;
@@ -119,15 +119,9 @@ async function editMovie(movie) {
         document.getElementById('rating').value = movie.rating || '';
         document.getElementById('watchedDate').value = movie.watchedDate || '';
         document.getElementById('synopsis').value = movie.synopsis || '';
-        
-        // Armazenar URLs das imagens no formulário
         form.dataset.posterUrl = movie.posterUrl || '';
         form.dataset.backdropUrl = movie.backdropUrl || '';
-
-        // Atualizar título do modal
         document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
-        
-        // Abrir modal
         const modal = new bootstrap.Modal(document.getElementById('addMovieModal'));
         modal.show();
     } catch (error) {
@@ -307,7 +301,7 @@ function setupEventListeners(userId) {
             const movieId = form.querySelector('#movieId').value;
             const title = form.querySelector('#title').value.trim();
             const selectedMovieId = form.querySelector('#tmdbId').value;
-            
+
             if (!title) {
                 alert('O título do filme é obrigatório');
                 return;
@@ -330,19 +324,23 @@ function setupEventListeners(userId) {
                 // Atualizar filme existente
                 await db.collection('movies').doc(movieId).update(movieData);
             } else {
-                // Verificar duplicidade pelo TMDb ID ou título
-                const duplicateCheck = selectedMovieId 
-                    ? db.collection('movies')
+                // Verificar duplicidade pelo TMDb ID e título
+                let duplicate = false;
+                if (selectedMovieId) {
+                    const existingByTmdb = await db.collection('movies')
                         .where('userId', '==', userId)
                         .where('tmdbId', '==', selectedMovieId)
-                        .get()
-                    : db.collection('movies')
+                        .get();
+                    if (!existingByTmdb.empty) duplicate = true;
+                }
+                if (!duplicate) {
+                    const existingByTitle = await db.collection('movies')
                         .where('userId', '==', userId)
                         .where('title', '==', title)
                         .get();
-
-                const existingMovie = await duplicateCheck;
-                if (!existingMovie.empty) {
+                    if (!existingByTitle.empty) duplicate = true;
+                }
+                if (duplicate) {
                     alert('Este filme já está na sua lista!');
                     return;
                 }
@@ -358,7 +356,7 @@ function setupEventListeners(userId) {
 
                 await db.collection('movies').add(movieData);
             }
-            
+
             // Fechar modal
             const modal = bootstrap.Modal.getInstance(document.getElementById('addMovieModal'));
             if (modal) {
@@ -371,6 +369,8 @@ function setupEventListeners(userId) {
             form.querySelector('#tmdbId').value = '';
             form.dataset.posterUrl = '';
             form.dataset.backdropUrl = '';
+            document.getElementById('movieFormFields').classList.add('d-none');
+            document.getElementById('movieSearch').value = '';
             
             // Recarregar filmes
             loadMovies(userId);
