@@ -13,8 +13,9 @@ function formatRuntime(minutes) {
     const remainingMinutes = minutes % 60;
     return `${hours}h ${remainingMinutes}min`;
 }
-    
-    // Preencher campos adicionais se existirem
+
+// Função para preencher campos adicionais
+function fillAdditionalFields(movieDetails) {
     if (movieDetails.releaseDate) {
         const releaseDateInput = document.getElementById('releaseDate');
         if (releaseDateInput) {
@@ -24,113 +25,150 @@ function formatRuntime(minutes) {
 }
 
 // Função para mostrar detalhes do filme
-function showMovieDetails(movie) {
+async function showMovieDetails(movie) {
     currentMovie = movie;
+
+    try {
+        // Se tiver o tmdbId, busca detalhes atualizados da API
+        if (movie.tmdbId) {
+            const updatedDetails = await getMovieDetails(movie.title);
+            if (updatedDetails) {
+                // Atualiza apenas os campos que vieram da API, mantendo os dados locais
+                movie.originalTitle = updatedDetails.originalTitle;
+                movie.synopsis = movie.synopsis || updatedDetails.synopsis;
+                movie.runtime = movie.runtime || updatedDetails.runtime;
+                movie.genre = movie.genre || updatedDetails.genre;
+                movie.posterUrl = movie.posterUrl || updatedDetails.posterUrl;
+                movie.backdropUrl = movie.backdropUrl || updatedDetails.backdropUrl;
+            }
+        }
     
-    document.getElementById('movieDetailsTitle').textContent = movie.title;
-    document.getElementById('movieDetailsGenre').textContent = movie.genre || '-';
-    document.getElementById('movieDetailsRuntime').textContent = formatRuntime(movie.runtime);
-    document.getElementById('movieDetailsStatus').textContent = movie.status === 'assistido' ? 'Assistido' : 'Não Assistido';
-    document.getElementById('movieDetailsRating').textContent = movie.rating ? `${movie.rating}/10` : '-';
-    document.getElementById('movieDetailsWatchedDate').textContent = formatDate(movie.watchedDate);
-    document.getElementById('movieDetailsSynopsis').textContent = movie.synopsis || 'Sem sinopse disponível';
-    
-    if (movie.posterUrl) {
-        document.getElementById('movieDetailsPoster').src = movie.posterUrl;
-        document.getElementById('movieDetailsPoster').style.display = 'block';
-    } else {
-        document.getElementById('movieDetailsPoster').style.display = 'none';
+        // Atualiza a interface com todos os detalhes disponíveis
+        document.getElementById('movieDetailsTitle').textContent = movie.title;
+        document.getElementById('movieDetailsOriginalTitle').textContent = movie.originalTitle || movie.title;
+        document.getElementById('movieDetailsGenre').textContent = movie.genre || '-';
+        document.getElementById('movieDetailsRuntime').textContent = formatRuntime(movie.runtime);
+        document.getElementById('movieDetailsStatus').textContent = movie.status === 'assistido' ? 'Assistido' : 'Não Assistido';
+        document.getElementById('movieDetailsRating').textContent = movie.rating ? `${movie.rating}/10` : '-';
+        document.getElementById('movieDetailsWatchedDate').textContent = formatDate(movie.watchedDate);
+        document.getElementById('movieDetailsSynopsis').textContent = movie.synopsis || 'Sem sinopse disponível';
+        
+        // Atualiza imagens
+        const posterElement = document.getElementById('movieDetailsPoster');
+        if (movie.posterUrl) {
+            posterElement.src = movie.posterUrl;
+            posterElement.style.display = 'block';
+        } else {
+            posterElement.style.display = 'none';
+        }
+
+        // Atualizar texto do botão de status
+        const toggleStatusBtn = document.getElementById('toggleStatusBtn');
+        if (toggleStatusBtn) {
+            toggleStatusBtn.textContent = movie.status === 'assistido' ? 'Marcar como Não Assistido' : 'Marcar como Assistido';
+        }
+
+        // Mostrar o modal
+        const modal = new bootstrap.Modal(document.getElementById('movieDetailsModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Erro ao mostrar detalhes do filme:', error);
+        alert('Erro ao carregar detalhes do filme. Tente novamente.');
     }
-
-    // Atualizar texto do botão de status
-    const toggleStatusBtn = document.getElementById('toggleStatusBtn');
-    toggleStatusBtn.textContent = movie.status === 'assistido' ? 'Marcar como Não Assistido' : 'Marcar como Assistido';
-
-    const modal = new bootstrap.Modal(document.getElementById('movieDetailsModal'));
-    modal.show();
 }
+
+// Função para atualizar status do filme
+async function toggleMovieStatus() {
+    if (!currentMovie) return;
+
+    try {
+        // Inverte o status
+        const newStatus = currentMovie.status === 'assistido' ? 'nao_assistido' : 'assistido';
+        
+        // Atualiza no Firestore
+        await db.collection('movies').doc(currentMovie.id).update({
+            status: newStatus,
+            // Se marcar como assistido, adiciona a data atual
+            watchedDate: newStatus === 'assistido' ? new Date().toISOString() : null
+        });
+
+        // Atualiza o objeto local
+        currentMovie.status = newStatus;
+        currentMovie.watchedDate = newStatus === 'assistido' ? new Date().toISOString() : null;
+
+        // Atualiza a interface
+        document.getElementById('movieDetailsStatus').textContent = newStatus === 'assistido' ? 'Assistido' : 'Não Assistido';
+        document.getElementById('movieDetailsWatchedDate').textContent = formatDate(currentMovie.watchedDate);
+        document.getElementById('toggleStatusBtn').textContent = 
+            newStatus === 'assistido' ? 'Marcar como Não Assistido' : 'Marcar como Assistido';
+
+        // Recarrega a lista de filmes para atualizar a visualização
+        loadMovies(firebase.auth().currentUser.uid);
+    } catch (error) {
+        console.error('Erro ao atualizar status do filme:', error);
+        alert('Erro ao atualizar status do filme. Tente novamente.');
+    }
+}
+
+// Adiciona listeners quando o documento estiver carregado
+document.addEventListener('DOMContentLoaded', () => {
+    // Listener para o botão de alternar status
+    const toggleStatusBtn = document.getElementById('toggleStatusBtn');
+    if (toggleStatusBtn) {
+        toggleStatusBtn.addEventListener('click', toggleMovieStatus);
+    }
+});
 
 // Função para editar filme
 function editMovie() {
     if (!currentMovie) return;
 
-    // Preencher o formulário com os dados atuais
-    document.getElementById('movieId').value = currentMovie.id;
-    document.getElementById('title').value = currentMovie.title;
-    document.getElementById('genre').value = currentMovie.genre || '';
-    document.getElementById('runtime').value = currentMovie.runtime || '';
-    document.getElementById('status').value = currentMovie.status;
-    document.getElementById('rating').value = currentMovie.rating || '';
-    document.getElementById('watchedDate').value = currentMovie.watchedDate || '';
-    document.getElementById('synopsis').value = currentMovie.synopsis || '';
+    try {
+        // Preencher o formulário com os dados atuais
+        document.getElementById('movieId').value = currentMovie.id;
+        document.getElementById('tmdbId').value = currentMovie.tmdbId || '';
+        document.getElementById('title').value = currentMovie.title;
+        document.getElementById('originalTitle').value = currentMovie.originalTitle || currentMovie.title;
+        document.getElementById('genre').value = currentMovie.genre || '';
+        document.getElementById('runtime').value = currentMovie.runtime || '';
+        document.getElementById('status').value = currentMovie.status;
+        document.getElementById('rating').value = currentMovie.rating || '';
+        document.getElementById('watchedDate').value = currentMovie.watchedDate || '';
+        document.getElementById('synopsis').value = currentMovie.synopsis || '';
 
-    // Fechar modal de detalhes e abrir modal de edição
-    bootstrap.Modal.getInstance(document.getElementById('movieDetailsModal')).hide();
-    const editModal = new bootstrap.Modal(document.getElementById('addMovieModal'));
-    document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
-    editModal.show();
+        // Fechar modal de detalhes e abrir modal de edição
+        const detailsModal = bootstrap.Modal.getInstance(document.getElementById('movieDetailsModal'));
+        if (detailsModal) {
+            detailsModal.hide();
+        }
+
+        const editModal = new bootstrap.Modal(document.getElementById('addMovieModal'));
+        document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
+        editModal.show();
+    } catch (error) {
+        console.error('Erro ao abrir formulário de edição:', error);
+        alert('Erro ao abrir formulário de edição. Tente novamente.');
+    }
 }
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
-    // Listener para o botão de editar
-    document.getElementById('editMovieBtn').addEventListener('click', editMovie);
+// Listener para o botão de editar
+document.getElementById('editMovieBtn')?.addEventListener('click', editMovie);
 
-    // Listener para o botão de alternar status
-    document.getElementById('toggleStatusBtn').addEventListener('click', async () => {
-        if (!currentMovie) return;
-        
-        const newStatus = currentMovie.status === 'assistido' ? 'nao_assistido' : 'assistido';
-        await db.collection('movies').doc(currentMovie.id).update({
-            status: newStatus,
-            watchedDate: newStatus === 'assistido' ? new Date().toISOString().split('T')[0] : null
-        });
-
-        bootstrap.Modal.getInstance(document.getElementById('movieDetailsModal')).hide();
-        loadMovies(); // Recarregar lista de filmes
-    });
-
-    // Listener para o botão de excluir
-    document.getElementById('deleteMovieBtn').addEventListener('click', async () => {
-        if (!currentMovie || !confirm('Tem certeza que deseja excluir este filme?')) return;
-        
+// Listener para o botão de excluir
+document.getElementById('deleteMovieBtn')?.addEventListener('click', async () => {
+    if (!currentMovie || !confirm('Tem certeza que deseja excluir este filme?')) return;
+    
+    try {
         await db.collection('movies').doc(currentMovie.id).delete();
-        bootstrap.Modal.getInstance(document.getElementById('movieDetailsModal')).hide();
-        loadMovies(); // Recarregar lista de filmes
-    });
-
-    // Atualizar o formulário para incluir os novos campos
-    const movieForm = document.getElementById('movieForm');
-    movieForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
         
-        const movieData = {
-            title: document.getElementById('title').value,
-            status: document.getElementById('status').value,
-            rating: document.getElementById('rating').value ? parseInt(document.getElementById('rating').value) : null,
-            watchedDate: document.getElementById('watchedDate').value || null,
-            genre: document.getElementById('genre').value || null,
-            runtime: document.getElementById('runtime').value ? parseInt(document.getElementById('runtime').value) : null,
-            synopsis: document.getElementById('synopsis').value || null,
-            updatedAt: new Date().toISOString()
-        };
-
-        const movieId = document.getElementById('movieId').value;
-        
-        try {
-            if (movieId) {
-                await db.collection('movies').doc(movieId).update(movieData);
-            } else {
-                movieData.createdAt = new Date().toISOString();
-                await db.collection('movies').add(movieData);
-            }
-
-            bootstrap.Modal.getInstance(document.getElementById('addMovieModal')).hide();
-            movieForm.reset();
-            loadMovies();
-        } catch (error) {
-            console.error('Erro ao salvar filme:', error);
-            alert('Erro ao salvar filme. Por favor, tente novamente.');
+        const modal = bootstrap.Modal.getInstance(document.getElementById('movieDetailsModal'));
+        if (modal) {
+            modal.hide();
         }
-    });
+        
+        loadMovies(firebase.auth().currentUser.uid);
+    } catch (error) {
+        console.error('Erro ao excluir filme:', error);
+        alert('Erro ao excluir filme. Tente novamente.');
+    }
 });
