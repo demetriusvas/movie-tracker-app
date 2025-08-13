@@ -20,6 +20,9 @@ auth.onAuthStateChanged(user => {
     setupEventListeners(user.uid);
 });
 
+// Cache simples para os dados dos filmes
+const movieCache = new Map();
+
 // Carregar filmes do usuário
 async function loadMovies(userId) {
     const moviesContainer = document.getElementById('moviesContainer');
@@ -32,6 +35,7 @@ async function loadMovies(userId) {
             .get();
         
         moviesContainer.innerHTML = '';
+        movieCache.clear(); // Limpa o cache antes de recarregar
         
         if (snapshot.empty) {
             moviesContainer.innerHTML = `
@@ -47,6 +51,7 @@ async function loadMovies(userId) {
         
         snapshot.forEach(doc => {
             const movie = { id: doc.id, ...doc.data() };
+            movieCache.set(movie.id, movie); // Adiciona o filme ao cache
             addMovieToDOM(movie, userId);
         });
     } catch (error) {
