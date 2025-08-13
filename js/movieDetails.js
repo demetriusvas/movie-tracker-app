@@ -24,8 +24,27 @@ function fillAdditionalFields(movieDetails) {
     }
 }
 
+// Função para validar e atualizar elemento
+function updateElement(id, value, defaultValue = '-') {
+    const element = document.getElementById(id);
+    if (element) {
+        element.textContent = value || defaultValue;
+    }
+}
+
 // Função para mostrar detalhes do filme
 async function showMovieDetails(movie) {
+    if (!movie) {
+        console.error('Nenhum filme fornecido para exibição');
+        return;
+    }
+
+    const modalElement = document.getElementById('movieDetailsModal');
+    if (!modalElement) {
+        console.error('Modal de detalhes não encontrado');
+        return;
+    }
+
     currentMovie = movie;
 
     try {
@@ -44,32 +63,45 @@ async function showMovieDetails(movie) {
         }
     
         // Atualiza a interface com todos os detalhes disponíveis
-        document.getElementById('movieDetailsTitle').textContent = movie.title;
-        document.getElementById('movieDetailsOriginalTitle').textContent = movie.originalTitle || movie.title;
-        document.getElementById('movieDetailsGenre').textContent = movie.genre || '-';
-        document.getElementById('movieDetailsRuntime').textContent = formatRuntime(movie.runtime);
-        document.getElementById('movieDetailsStatus').textContent = movie.status === 'assistido' ? 'Assistido' : 'Não Assistido';
-        document.getElementById('movieDetailsRating').textContent = movie.rating ? `${movie.rating}/10` : '-';
-        document.getElementById('movieDetailsWatchedDate').textContent = formatDate(movie.watchedDate);
-        document.getElementById('movieDetailsSynopsis').textContent = movie.synopsis || 'Sem sinopse disponível';
+        updateElement('movieDetailsTitle', movie.title);
+        updateElement('movieDetailsOriginalTitle', movie.originalTitle || movie.title);
+        updateElement('movieDetailsGenre', movie.genre);
+        updateElement('movieDetailsRuntime', formatRuntime(movie.runtime));
+        updateElement('movieDetailsStatus', movie.status === 'assistido' ? 'Assistido' : 'Não Assistido');
+        updateElement('movieDetailsRating', movie.rating ? `${movie.rating}/10` : null);
+        updateElement('movieDetailsWatchedDate', formatDate(movie.watchedDate));
+        updateElement('movieDetailsSynopsis', movie.synopsis, 'Sem sinopse disponível');
         
         // Atualiza imagens
         const posterElement = document.getElementById('movieDetailsPoster');
-        if (movie.posterUrl) {
-            posterElement.src = movie.posterUrl;
-            posterElement.style.display = 'block';
-        } else {
-            posterElement.style.display = 'none';
+        if (posterElement) {
+            if (movie.posterUrl) {
+                posterElement.src = movie.posterUrl;
+                posterElement.style.display = 'block';
+            } else {
+                posterElement.src = 'https://placehold.co/500x750/212529/FFFFFF/png?text=Sem+Imagem';
+                posterElement.style.display = 'block';
+            }
         }
 
-        // Atualizar texto do botão de status
+        // Atualizar botões de ação
         const toggleStatusBtn = document.getElementById('toggleStatusBtn');
         if (toggleStatusBtn) {
             toggleStatusBtn.textContent = movie.status === 'assistido' ? 'Marcar como Não Assistido' : 'Marcar como Assistido';
         }
 
+        const editBtn = document.getElementById('editMovieBtn');
+        if (editBtn) {
+            editBtn.style.display = 'block';
+        }
+
+        const deleteBtn = document.getElementById('deleteMovieBtn');
+        if (deleteBtn) {
+            deleteBtn.style.display = 'block';
+        }
+
         // Mostrar o modal
-        const modal = new bootstrap.Modal(document.getElementById('movieDetailsModal'));
+        const modal = new bootstrap.Modal(modalElement);
         modal.show();
     } catch (error) {
         console.error('Erro ao mostrar detalhes do filme:', error);

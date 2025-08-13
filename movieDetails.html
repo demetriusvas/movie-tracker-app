@@ -1,0 +1,46 @@
+<!-- Modal de Detalhes do Filme -->
+<div class="modal fade" id="movieDetailsModal" tabindex="-1" aria-labelledby="movieDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="movieDetailsTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <img id="movieDetailsPoster" src="" alt="Poster do filme" class="img-fluid mb-3">
+                    </div>
+                    <div class="col-md-8">
+                        <h6>Título Original</h6>
+                        <p id="movieDetailsOriginalTitle" class="mb-3"></p>
+
+                        <h6>Gênero</h6>
+                        <p id="movieDetailsGenre" class="mb-3"></p>
+
+                        <h6>Duração</h6>
+                        <p id="movieDetailsRuntime" class="mb-3"></p>
+
+                        <h6>Status</h6>
+                        <p id="movieDetailsStatus" class="mb-3"></p>
+
+                        <h6>Avaliação</h6>
+                        <p id="movieDetailsRating" class="mb-3"></p>
+
+                        <h6>Data de Visualização</h6>
+                        <p id="movieDetailsWatchedDate" class="mb-3"></p>
+
+                        <h6>Sinopse</h6>
+                        <p id="movieDetailsSynopsis" class="mb-3"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="toggleStatusBtn" class="btn btn-primary">Marcar como Assistido</button>
+                <button type="button" id="editMovieBtn" class="btn btn-secondary">Editar</button>
+                <button type="button" id="deleteMovieBtn" class="btn btn-danger">Excluir</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
