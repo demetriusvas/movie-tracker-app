@@ -172,56 +172,25 @@ function editMovie() {
     if (!currentMovie) return;
 
     try {
-        // Preencher o formulário com os dados atuais
-        const form = addMovieModal._element.querySelector('#movieForm');
-        form.reset();
-        document.getElementById('movieFormFields').classList.remove('d-none');
-        document.getElementById('movieSearch').value = currentMovie.title;
-        document.getElementById('movieId').value = currentMovie.id;
-        document.getElementById('tmdbId').value = currentMovie.tmdbId || '';
-        document.getElementById('title').value = currentMovie.title;
-        document.getElementById('originalTitle').value = currentMovie.originalTitle || currentMovie.title;
-        document.getElementById('genre').value = currentMovie.genre || '';
-        document.getElementById('runtime').value = currentMovie.runtime || '';
-        document.getElementById('status').value = currentMovie.status;
-        document.getElementById('rating').value = currentMovie.rating || '';
-        document.getElementById('watchedDate').value = currentMovie.watchedDate || '';
-        document.getElementById('synopsis').value = currentMovie.synopsis || '';
-        form.dataset.posterUrl = currentMovie.posterUrl || '';
-        form.dataset.backdropUrl = currentMovie.backdropUrl || '';
-        document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
-
-        // Fechar modal de detalhes e abrir modal de edição
-        if (movieDetailsModal) {
-            movieDetailsModal.hide();
-        }
-
-        if (!addMovieModal) {
-            const addModalElement = document.getElementById('addMovieModal');
-            if (addModalElement) {
-                addMovieModal = new bootstrap.Modal(addModalElement);
-            }
-        }
-
         if (addMovieModal) {
             // Preencher o formulário com os dados atuais
-        const form = addMovieModal._element.querySelector('#movieForm');
+            const form = addMovieModal._element.querySelector('#movieForm');
             form.reset();
-            document.getElementById('movieFormFields').classList.remove('d-none');
-            document.getElementById('movieSearch').value = currentMovie.title;
-            document.getElementById('movieId').value = currentMovie.id;
-            document.getElementById('tmdbId').value = currentMovie.tmdbId || '';
-            document.getElementById('title').value = currentMovie.title;
-            document.getElementById('originalTitle').value = currentMovie.originalTitle || currentMovie.title;
-            document.getElementById('genre').value = currentMovie.genre || '';
-            document.getElementById('runtime').value = currentMovie.runtime || '';
-            document.getElementById('status').value = currentMovie.status;
-            document.getElementById('rating').value = currentMovie.rating || '';
-            document.getElementById('watchedDate').value = currentMovie.watchedDate || '';
-            document.getElementById('synopsis').value = currentMovie.synopsis || '';
+            form.querySelector('#movieFormFields').classList.remove('d-none');
+            form.querySelector('#movieSearch').value = currentMovie.title;
+            form.querySelector('#movieId').value = currentMovie.id;
+            form.querySelector('#tmdbId').value = currentMovie.tmdbId || '';
+            form.querySelector('#title').value = currentMovie.title;
+            form.querySelector('#originalTitle').value = currentMovie.originalTitle || currentMovie.title;
+            form.querySelector('#genre').value = currentMovie.genre || '';
+            form.querySelector('#runtime').value = currentMovie.runtime || '';
+            form.querySelector('#status').value = currentMovie.status;
+            form.querySelector('#rating').value = currentMovie.rating || '';
+            form.querySelector('#watchedDate').value = currentMovie.watchedDate || '';
+            form.querySelector('#synopsis').value = currentMovie.synopsis || '';
             form.dataset.posterUrl = currentMovie.posterUrl || '';
             form.dataset.backdropUrl = currentMovie.backdropUrl || '';
-            document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
+            addMovieModal._element.querySelector('.modal-title').textContent = 'Editar Filme';
             addMovieModal.show();
         }
     } catch (error) {
