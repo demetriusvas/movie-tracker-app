@@ -101,8 +101,9 @@ async function showMovieDetails(movie) {
         }
 
         // Mostrar o modal
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
+        if (movieDetailsModal) {
+            movieDetailsModal.show();
+        }
     } catch (error) {
         console.error('Erro ao mostrar detalhes do filme:', error);
         alert('Erro ao carregar detalhes do filme. Tente novamente.');
@@ -143,7 +144,13 @@ async function toggleMovieStatus() {
 }
 
 // Adiciona listeners quando o documento estiver carregado
+let movieDetailsModal = null;
 document.addEventListener('DOMContentLoaded', () => {
+    const modalElement = document.getElementById('movieDetailsModal');
+    if (modalElement) {
+        movieDetailsModal = new bootstrap.Modal(modalElement);
+    }
+
     // Listener para o botão de alternar status
     const toggleStatusBtn = document.getElementById('toggleStatusBtn');
     if (toggleStatusBtn) {

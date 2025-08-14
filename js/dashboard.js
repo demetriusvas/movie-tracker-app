@@ -118,6 +118,7 @@ async function editMovie(movie) {
         document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
         const modal = new bootstrap.Modal(document.getElementById('addMovieModal'));
         modal.show();
+        document.getElementById('addMovieModal').dataset.mode = 'edit';
     } catch (error) {
         console.error('Erro ao abrir formulário de edição:', error);
         alert('Erro ao abrir formulário de edição. Tente novamente.');
@@ -381,7 +382,12 @@ function setupEventListeners(userId) {
     const addMovieModal = document.getElementById('addMovieModal');
     if (addMovieModal) {
         // Quando o modal é aberto
-        addMovieModal.addEventListener('show.bs.modal', () => {
+        addMovieModal.addEventListener('show.bs.modal', (event) => {
+            const mode = addMovieModal.dataset.mode;
+            if (mode === 'edit') {
+                delete addMovieModal.dataset.mode;
+                return;
+            }
             // Resetar o formulário
             const form = document.getElementById('movieForm');
             form.reset();
