@@ -112,8 +112,20 @@ async function showMovieDetails(movie) {
         }
 
         // Mostrar o modal
+        console.log('modalElement:', modalElement);
+        console.log('movieDetailsModal:', movieDetailsModal);
         if (movieDetailsModal) {
             movieDetailsModal.show();
+            // Forçar exibição para depuração
+            modalElement.style.display = 'block';
+            modalElement.classList.add('show');
+            modalElement.setAttribute('aria-hidden', 'false');
+            modalElement.setAttribute('role', 'dialog');
+            modalElement.removeAttribute('inert');
+            document.body.classList.add('modal-open');
+            const backdrop = document.createElement('div');
+            backdrop.classList.add('modal-backdrop', 'fade', 'show');
+            document.body.appendChild(backdrop);
         }
     } catch (error) {
         console.error('Erro ao mostrar detalhes do filme:', error);
