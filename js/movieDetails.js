@@ -146,7 +146,7 @@ async function toggleMovieStatus() {
             newStatus === 'assistido' ? 'Marcar como Não Assistido' : 'Marcar como Assistido';
 
         // Recarrega a lista de filmes para atualizar a visualização
-        loadMovies(firebase.auth().currentUser.uid);
+        location.reload();
     } catch (error) {
         console.error('Erro ao atualizar status do filme:', error);
         alert('Erro ao atualizar status do filme. Tente novamente.');
@@ -202,7 +202,7 @@ async function deleteMovie() {
             movieDetailsModal.hide();
         }
         
-        loadMovies(firebase.auth().currentUser.uid);
+        location.reload();
     } catch (error) {
         console.error('Erro ao excluir filme:', error);
         alert('Erro ao excluir filme. Tente novamente.');
