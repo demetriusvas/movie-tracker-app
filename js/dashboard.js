@@ -14,6 +14,7 @@ const movieCache = new Map();
 
 // Carregar filmes do usuário
 async function loadMovies(userId) {
+    console.log('Loading movies for user:', userId);
     const moviesContainer = document.getElementById('moviesContainer');
     moviesContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
     
@@ -23,6 +24,8 @@ async function loadMovies(userId) {
             .orderBy('createdAt', 'desc')
             .get();
         
+        console.log('Snapshot empty:', snapshot.empty);
+
         moviesContainer.innerHTML = '';
         movieCache.clear(); // Limpa o cache antes de recarregar
         
@@ -39,6 +42,7 @@ async function loadMovies(userId) {
         }
         
         snapshot.forEach(doc => {
+            console.log('Movie found:', doc.data());
             const movie = { id: doc.id, ...doc.data() };
             movieCache.set(movie.id, movie); // Adiciona o filme ao cache
             addMovieToDOM(movie, userId);
