@@ -173,7 +173,7 @@ function editMovie() {
 
     try {
         // Preencher o formulário com os dados atuais
-        const form = document.getElementById('movieForm');
+        const form = addMovieModal._element.querySelector('#movieForm');
         form.reset();
         document.getElementById('movieFormFields').classList.remove('d-none');
         document.getElementById('movieSearch').value = currentMovie.title;
@@ -197,7 +197,8 @@ function editMovie() {
         }
 
         if (addMovieModal) {
-            const form = document.getElementById('movieForm');
+            // Preencher o formulário com os dados atuais
+        const form = addMovieModal._element.querySelector('#movieForm');
             form.reset();
             document.getElementById('movieFormFields').classList.remove('d-none');
             document.getElementById('movieSearch').value = currentMovie.title;
