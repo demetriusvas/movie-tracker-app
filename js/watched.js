@@ -1,3 +1,4 @@
+
 // Carregar apenas filmes assistidos
 async function loadWatchedMovies(userId) {
     const moviesContainer = document.getElementById('moviesContainer');
@@ -54,6 +55,10 @@ function createMovieCard(movie) {
     posterContainer.addEventListener('click', () => showMovieDetails(movie));
 
     return movieElement;
+}
+
+function loadMovies(userId) {
+    loadWatchedMovies(userId);
 }
 
 // Inicializar página

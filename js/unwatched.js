@@ -1,3 +1,4 @@
+
 // Carregar apenas filmes não assistidos
 async function loadUnwatchedMovies(userId) {
     const moviesContainer = document.getElementById('moviesContainer');
@@ -53,6 +54,10 @@ function createMovieCard(movie) {
     posterContainer.addEventListener('click', () => showMovieDetails(movie));
 
     return movieElement;
+}
+
+function loadMovies(userId) {
+    loadUnwatchedMovies(userId);
 }
 
 // Inicializar página
