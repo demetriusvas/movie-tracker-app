@@ -66,6 +66,12 @@ async function showMovieDetails(movie) {
         return;
     }
 
+    const modalElement = document.getElementById('movieDetailsModal');
+    if (!modalElement) {
+        console.error('Modal de detalhes não encontrado');
+        return;
+    }
+
     currentMovie = movie;
 
     try {
