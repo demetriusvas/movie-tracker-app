@@ -9,17 +9,6 @@ auth.onAuthStateChanged(user => {
     setupEventListeners(user.uid);
 });
 
-// Verificar autenticação
-auth.onAuthStateChanged(user => {
-    if (!user) {
-        window.location.href = 'index.html';
-        return;
-    }
-    
-    loadMovies(user.uid);
-    setupEventListeners(user.uid);
-});
-
 // Cache simples para os dados dos filmes
 const movieCache = new Map();
 
