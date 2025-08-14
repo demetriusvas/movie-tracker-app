@@ -60,6 +60,7 @@ function updateElement(id, value, defaultValue = '-') {
 
 // Função para mostrar detalhes do filme
 async function showMovieDetails(movie) {
+    console.log('showMovieDetails called with movie:', movie);
     if (!movie) {
         console.error('Nenhum filme fornecido para exibição');
         return;
