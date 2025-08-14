@@ -1,4 +1,30 @@
 let currentMovie = null;
+let movieDetailsModal = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modalElement = document.getElementById('movieDetailsModal');
+    if (modalElement) {
+        movieDetailsModal = new bootstrap.Modal(modalElement);
+    }
+
+    // Listener para o botão de alternar status
+    const toggleStatusBtn = document.getElementById('toggleStatusBtn');
+    if (toggleStatusBtn) {
+        toggleStatusBtn.addEventListener('click', toggleMovieStatus);
+    }
+
+    // Listener para o botão de editar
+    const editMovieBtn = document.getElementById('editMovieBtn');
+    if (editMovieBtn) {
+        editMovieBtn.addEventListener('click', editMovie);
+    }
+
+    // Listener para o botão de excluir
+    const deleteMovieBtn = document.getElementById('deleteMovieBtn');
+    if (deleteMovieBtn) {
+        deleteMovieBtn.addEventListener('click', deleteMovie);
+    }
+});
 
 // Função para formatar a data
 function formatDate(date) {
@@ -36,12 +62,6 @@ function updateElement(id, value, defaultValue = '-') {
 async function showMovieDetails(movie) {
     if (!movie) {
         console.error('Nenhum filme fornecido para exibição');
-        return;
-    }
-
-    const modalElement = document.getElementById('movieDetailsModal');
-    if (!modalElement) {
-        console.error('Modal de detalhes não encontrado');
         return;
     }
 
@@ -90,16 +110,6 @@ async function showMovieDetails(movie) {
             toggleStatusBtn.textContent = movie.status === 'assistido' ? 'Marcar como Não Assistido' : 'Marcar como Assistido';
         }
 
-        const editBtn = document.getElementById('editMovieBtn');
-        if (editBtn) {
-            editBtn.style.display = 'block';
-        }
-
-        const deleteBtn = document.getElementById('deleteMovieBtn');
-        if (deleteBtn) {
-            deleteBtn.style.display = 'block';
-        }
-
         // Mostrar o modal
         if (movieDetailsModal) {
             movieDetailsModal.show();
@@ -130,8 +140,8 @@ async function toggleMovieStatus() {
         currentMovie.watchedDate = newStatus === 'assistido' ? new Date().toISOString() : null;
 
         // Atualiza a interface
-        document.getElementById('movieDetailsStatus').textContent = newStatus === 'assistido' ? 'Assistido' : 'Não Assistido';
-        document.getElementById('movieDetailsWatchedDate').textContent = formatDate(currentMovie.watchedDate);
+        updateElement('movieDetailsStatus', newStatus === 'assistido' ? 'Assistido' : 'Não Assistido');
+        updateElement('movieDetailsWatchedDate', formatDate(currentMovie.watchedDate));
         document.getElementById('toggleStatusBtn').textContent = 
             newStatus === 'assistido' ? 'Marcar como Não Assistido' : 'Marcar como Assistido';
 
@@ -143,27 +153,16 @@ async function toggleMovieStatus() {
     }
 }
 
-// Adiciona listeners quando o documento estiver carregado
-let movieDetailsModal = null;
-document.addEventListener('DOMContentLoaded', () => {
-    const modalElement = document.getElementById('movieDetailsModal');
-    if (modalElement) {
-        movieDetailsModal = new bootstrap.Modal(modalElement);
-    }
-
-    // Listener para o botão de alternar status
-    const toggleStatusBtn = document.getElementById('toggleStatusBtn');
-    if (toggleStatusBtn) {
-        toggleStatusBtn.addEventListener('click', toggleMovieStatus);
-    }
-});
-
 // Função para editar filme
 function editMovie() {
     if (!currentMovie) return;
 
     try {
         // Preencher o formulário com os dados atuais
+        const form = document.getElementById('movieForm');
+        form.reset();
+        document.getElementById('movieFormFields').classList.remove('d-none');
+        document.getElementById('movieSearch').value = currentMovie.title;
         document.getElementById('movieId').value = currentMovie.id;
         document.getElementById('tmdbId').value = currentMovie.tmdbId || '';
         document.getElementById('title').value = currentMovie.title;
@@ -174,35 +173,33 @@ function editMovie() {
         document.getElementById('rating').value = currentMovie.rating || '';
         document.getElementById('watchedDate').value = currentMovie.watchedDate || '';
         document.getElementById('synopsis').value = currentMovie.synopsis || '';
+        form.dataset.posterUrl = currentMovie.posterUrl || '';
+        form.dataset.backdropUrl = currentMovie.backdropUrl || '';
+        document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
 
         // Fechar modal de detalhes e abrir modal de edição
-        const detailsModal = bootstrap.Modal.getInstance(document.getElementById('movieDetailsModal'));
-        if (detailsModal) {
-            detailsModal.hide();
+        if (movieDetailsModal) {
+            movieDetailsModal.hide();
         }
 
-        const editModal = new bootstrap.Modal(document.getElementById('addMovieModal'));
-        document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
-        editModal.show();
+        const addMovieModal = new bootstrap.Modal(document.getElementById('addMovieModal'));
+        addMovieModal.show();
+        document.getElementById('addMovieModal').dataset.mode = 'edit';
     } catch (error) {
         console.error('Erro ao abrir formulário de edição:', error);
         alert('Erro ao abrir formulário de edição. Tente novamente.');
     }
 }
 
-// Listener para o botão de editar
-document.getElementById('editMovieBtn')?.addEventListener('click', editMovie);
-
-// Listener para o botão de excluir
-document.getElementById('deleteMovieBtn')?.addEventListener('click', async () => {
+// Função para excluir filme
+async function deleteMovie() {
     if (!currentMovie || !confirm('Tem certeza que deseja excluir este filme?')) return;
     
     try {
         await db.collection('movies').doc(currentMovie.id).delete();
         
-        const modal = bootstrap.Modal.getInstance(document.getElementById('movieDetailsModal'));
-        if (modal) {
-            modal.hide();
+        if (movieDetailsModal) {
+            movieDetailsModal.hide();
         }
         
         loadMovies(firebase.auth().currentUser.uid);
@@ -210,4 +207,4 @@ document.getElementById('deleteMovieBtn')?.addEventListener('click', async () =>
         console.error('Erro ao excluir filme:', error);
         alert('Erro ao excluir filme. Tente novamente.');
     }
-});
+}

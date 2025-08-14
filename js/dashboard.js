@@ -96,48 +96,7 @@ function addMovieToDOM(movie, userId) {
     });
 }
 
-// Editar filme
-async function editMovie(movie) {
-    try {
-        const form = document.getElementById('movieForm');
-        form.reset();
-        document.getElementById('movieFormFields').classList.remove('d-none');
-        document.getElementById('movieSearch').value = movie.title;
-        document.getElementById('movieId').value = movie.id;
-        document.getElementById('tmdbId').value = movie.tmdbId || '';
-        document.getElementById('title').value = movie.title;
-        document.getElementById('originalTitle').value = movie.originalTitle || movie.title;
-        document.getElementById('genre').value = movie.genre || '';
-        document.getElementById('runtime').value = movie.runtime || '';
-        document.getElementById('status').value = movie.status || 'nao_assistido';
-        document.getElementById('rating').value = movie.rating || '';
-        document.getElementById('watchedDate').value = movie.watchedDate || '';
-        document.getElementById('synopsis').value = movie.synopsis || '';
-        form.dataset.posterUrl = movie.posterUrl || '';
-        form.dataset.backdropUrl = movie.backdropUrl || '';
-        document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
-        const modal = new bootstrap.Modal(document.getElementById('addMovieModal'));
-        modal.show();
-        document.getElementById('addMovieModal').dataset.mode = 'edit';
-    } catch (error) {
-        console.error('Erro ao abrir formulário de edição:', error);
-        alert('Erro ao abrir formulário de edição. Tente novamente.');
-    }
-}
 
-// Excluir filme
-async function deleteMovie(movieId, userId) {
-    if (confirm('Tem certeza que deseja excluir este filme?')) {
-        try {
-            await db.collection('movies').doc(movieId).delete();
-            // Recarrega a lista de filmes para refletir a exclusão.
-            loadMovies(userId);
-        } catch (error) {
-            console.error('Erro ao excluir filme:', error);
-            alert('Erro ao excluir filme');
-        }
-    }
-}
 
 // Setup de event listeners
 function setupEventListeners(userId) {
