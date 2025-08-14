@@ -1,7 +1,11 @@
 // Carregar apenas filmes assistidos
-async function loadWatchedMovies() {
+async function loadWatchedMovies(userId) {
+    const moviesContainer = document.getElementById('moviesContainer');
+    moviesContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div></div>';
+
     try {
         const snapshot = await db.collection('movies')
+            .where('userId', '==', userId)
             .where('status', '==', 'assistido')
             .orderBy('watchedDate', 'desc')
             .get();
@@ -25,6 +29,33 @@ async function loadWatchedMovies() {
     }
 }
 
+function createMovieCard(movie) {
+    const movieElement = document.createElement('div');
+    movieElement.className = 'col-12 col-sm-6 col-md-4 col-lg-3 mb-4 fade-in';
+
+    const placeholderPoster = 'https://placehold.co/500x750/212529/FFFFFF/png?text=Capa+Indispon%C3%ADvel';
+    const posterUrl = movie.posterUrl || placeholderPoster;
+
+    movieElement.innerHTML = `
+        <div class="card movie-card">
+            <div class="movie-poster-container" style="cursor: pointer;">
+                <img src="${posterUrl}" alt="Capa de ${movie.title}">
+            </div>
+            <div class="card-body">
+                <h6 class="card-title text-truncate" title="${movie.title}">${movie.title}</h6>
+                <span class="badge status-badge status-${movie.status}">${movie.status === 'assistido' ? 'Assistido' : 'Não Assistido'}</span>
+                ${movie.watchedDate ? `<small class="d-block text-muted mt-1">Visto em: ${new Date(movie.watchedDate).toLocaleDateString()}</small>` : ''}
+            </div>
+        </div>
+    `;
+
+    // Adicionar event listeners
+    const posterContainer = movieElement.querySelector('.movie-poster-container');
+    posterContainer.addEventListener('click', () => showMovieDetails(movie));
+
+    return movieElement;
+}
+
 // Inicializar página
 document.addEventListener('DOMContentLoaded', () => {
     // Verificar autenticação
@@ -33,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html';
             return;
         }
-        loadWatchedMovies();
+        loadWatchedMovies(user.uid);
     });
 
     // Configurar botão de logout
