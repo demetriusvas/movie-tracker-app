@@ -1,11 +1,17 @@
 let currentMovie = null;
 let movieDetailsModal = null;
+let addMovieModal = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('movieDetails.js: DOMContentLoaded fired');
     const modalElement = document.getElementById('movieDetailsModal');
     if (modalElement) {
         movieDetailsModal = new bootstrap.Modal(modalElement);
+    }
+
+    const addModalElement = document.getElementById('addMovieModal');
+    if (addModalElement) {
+        addMovieModal = new bootstrap.Modal(addModalElement);
     }
 
     // Listener para o botão de alternar status
@@ -190,8 +196,26 @@ function editMovie() {
             movieDetailsModal.hide();
         }
 
-        const addMovieModal = new bootstrap.Modal(document.getElementById('addMovieModal'));
-        addMovieModal.show();
+        if (addMovieModal) {
+            const form = document.getElementById('movieForm');
+            form.reset();
+            document.getElementById('movieFormFields').classList.remove('d-none');
+            document.getElementById('movieSearch').value = currentMovie.title;
+            document.getElementById('movieId').value = currentMovie.id;
+            document.getElementById('tmdbId').value = currentMovie.tmdbId || '';
+            document.getElementById('title').value = currentMovie.title;
+            document.getElementById('originalTitle').value = currentMovie.originalTitle || currentMovie.title;
+            document.getElementById('genre').value = currentMovie.genre || '';
+            document.getElementById('runtime').value = currentMovie.runtime || '';
+            document.getElementById('status').value = currentMovie.status;
+            document.getElementById('rating').value = currentMovie.rating || '';
+            document.getElementById('watchedDate').value = currentMovie.watchedDate || '';
+            document.getElementById('synopsis').value = currentMovie.synopsis || '';
+            form.dataset.posterUrl = currentMovie.posterUrl || '';
+            form.dataset.backdropUrl = currentMovie.backdropUrl || '';
+            document.querySelector('#addMovieModal .modal-title').textContent = 'Editar Filme';
+            addMovieModal.show();
+        }
     } catch (error) {
         console.error('Erro ao abrir formulário de edição:', error);
         alert('Erro ao abrir formulário de edição. Tente novamente.');
