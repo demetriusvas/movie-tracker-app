@@ -75,6 +75,8 @@ function addMovieToDOM(movie, userId) {
         </div>
     `;
     
+    moviesContainer.appendChild(movieElement);
+    
     const posterContainer = movieElement.querySelector('.movie-poster-container');
     posterContainer.addEventListener('click', () => showMovieDetails(movie));
 }
