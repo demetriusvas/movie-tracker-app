@@ -192,7 +192,6 @@ function editMovie() {
 
         const addMovieModal = new bootstrap.Modal(document.getElementById('addMovieModal'));
         addMovieModal.show();
-        document.getElementById('addMovieModal').dataset.mode = 'edit';
     } catch (error) {
         console.error('Erro ao abrir formulário de edição:', error);
         alert('Erro ao abrir formulário de edição. Tente novamente.');
