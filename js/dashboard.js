@@ -62,14 +62,6 @@ function addMovieToDOM(movie, userId) {
         <div class="card movie-card">
             <div class="movie-poster-container" style="cursor: pointer;">
                 <img src="${posterUrl}" alt="Capa de ${movie.title}">
-                <div class="movie-card-actions">
-                    <button class="btn btn-sm btn-primary edit-btn" data-id="${movie.id}">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="btn btn-sm btn-danger delete-btn mt-2" data-id="${movie.id}">
-                        <i class="fas fa-trash"></i> Excluir
-                    </button>
-                </div>
             </div>
             <div class="card-body">
                 <h6 class="card-title text-truncate" title="${movie.title}">${movie.title}</h6>
@@ -85,15 +77,9 @@ function addMovieToDOM(movie, userId) {
     const posterContainer = movieElement.querySelector('.movie-poster-container');
     posterContainer.addEventListener('click', () => showMovieDetails(movie));
     
-    movieElement.querySelector('.edit-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        editMovie(movie);
-    });
-    
-    movieElement.querySelector('.delete-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        deleteMovie(movie.id, userId);
-    });
+    // Adicionar event listeners
+    const posterContainer = movieElement.querySelector('.movie-poster-container');
+    posterContainer.addEventListener('click', () => showMovieDetails(movie));
 }
 
 
