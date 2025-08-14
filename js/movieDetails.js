@@ -171,33 +171,45 @@ async function toggleMovieStatus() {
 function editMovie() {
     if (!currentMovie) return;
 
+    console.log('editMovie: currentMovie', currentMovie);
+
     try {
         if (addMovieModal) {
             // Preencher o formulário com os dados atuais
             const form = addMovieModal._element.querySelector('#movieForm');
+            console.log('editMovie: form', form);
             form.reset();
             form.querySelector('#movieFormFields').classList.remove('d-none');
             form.querySelector('#movieSearch').value = currentMovie.title;
+            console.log('editMovie: movieSearch', form.querySelector('#movieSearch').value);
             form.querySelector('#movieId').value = currentMovie.id;
+            console.log('editMovie: movieId', form.querySelector('#movieId').value);
             form.querySelector('#tmdbId').value = currentMovie.tmdbId || '';
+            console.log('editMovie: tmdbId', form.querySelector('#tmdbId').value);
             form.querySelector('#title').value = currentMovie.title;
+            console.log('editMovie: title', form.querySelector('#title').value);
             form.querySelector('#originalTitle').value = currentMovie.originalTitle || currentMovie.title;
+            console.log('editMovie: originalTitle', form.querySelector('#originalTitle').value);
             form.querySelector('#genre').value = currentMovie.genre || '';
+            console.log('editMovie: genre', form.querySelector('#genre').value);
             form.querySelector('#runtime').value = currentMovie.runtime || '';
+            console.log('editMovie: runtime', form.querySelector('#runtime').value);
             form.querySelector('#status').value = currentMovie.status;
+            console.log('editMovie: status', form.querySelector('#status').value);
             form.querySelector('#rating').value = currentMovie.rating || '';
+            console.log('editMovie: rating', form.querySelector('#rating').value);
             form.querySelector('#watchedDate').value = currentMovie.watchedDate || '';
+            console.log('editMovie: watchedDate', form.querySelector('#watchedDate').value);
             form.querySelector('#synopsis').value = currentMovie.synopsis || '';
+            console.log('editMovie: synopsis', form.querySelector('#synopsis').value);
             form.dataset.posterUrl = currentMovie.posterUrl || '';
+            console.log('editMovie: posterUrl', form.dataset.posterUrl);
             form.dataset.backdropUrl = currentMovie.backdropUrl || '';
+            console.log('editMovie: backdropUrl', form.dataset.backdropUrl);
             addMovieModal._element.querySelector('.modal-title').textContent = 'Editar Filme';
             addMovieModal.show();
+            addMovieModal._element.dataset.mode = 'edit';
         }
-    } catch (error) {
-        console.error('Erro ao abrir formulário de edição:', error);
-        alert('Erro ao abrir formulário de edição. Tente novamente.');
-    }
-}
 
 // Função para excluir filme
 async function deleteMovie() {

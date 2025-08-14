@@ -328,9 +328,9 @@ function setupEventListeners(userId) {
     if (addMovieModal) {
         // Quando o modal é aberto
         addMovieModal.addEventListener('show.bs.modal', (event) => {
-            const mode = addMovieModal.dataset.mode;
+            const mode = addMovieModal._element.dataset.mode;
             if (mode === 'edit') {
-                delete addMovieModal.dataset.mode;
+                delete addMovieModal._element.dataset.mode;
                 return;
             }
             // Resetar o formulário
