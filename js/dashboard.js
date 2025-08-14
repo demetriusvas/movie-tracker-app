@@ -7,6 +7,29 @@ auth.onAuthStateChanged(user => {
     
     loadMovies(user.uid);
     setupEventListeners(user.uid);
+
+    const modalElement = document.getElementById('movieDetailsModal');
+    if (modalElement) {
+        movieDetailsModal = new bootstrap.Modal(modalElement);
+
+        // Listener para o botão de alternar status
+        const toggleStatusBtn = document.getElementById('toggleStatusBtn');
+        if (toggleStatusBtn) {
+            toggleStatusBtn.addEventListener('click', toggleMovieStatus);
+        }
+
+        // Listener para o botão de editar
+        const editMovieBtn = document.getElementById('editMovieBtn');
+        if (editMovieBtn) {
+            editMovieBtn.addEventListener('click', editMovie);
+        }
+
+        // Listener para o botão de excluir
+        const deleteMovieBtn = document.getElementById('deleteMovieBtn');
+        if (deleteMovieBtn) {
+            deleteMovieBtn.addEventListener('click', deleteMovie);
+        }
+    }
 });
 
 // Cache simples para os dados dos filmes
