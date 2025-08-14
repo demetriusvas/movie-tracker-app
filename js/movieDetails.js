@@ -1,6 +1,32 @@
 let currentMovie = null;
 let movieDetailsModal = null;
 
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('movieDetails.js: DOMContentLoaded fired');
+    const modalElement = document.getElementById('movieDetailsModal');
+    if (modalElement) {
+        movieDetailsModal = new bootstrap.Modal(modalElement);
+    }
+
+    // Listener para o botão de alternar status
+    const toggleStatusBtn = document.getElementById('toggleStatusBtn');
+    if (toggleStatusBtn) {
+        toggleStatusBtn.addEventListener('click', toggleMovieStatus);
+    }
+
+    // Listener para o botão de editar
+    const editMovieBtn = document.getElementById('editMovieBtn');
+    if (editMovieBtn) {
+        editMovieBtn.addEventListener('click', editMovie);
+    }
+
+    // Listener para o botão de excluir
+    const deleteMovieBtn = document.getElementById('deleteMovieBtn');
+    if (deleteMovieBtn) {
+        deleteMovieBtn.addEventListener('click', deleteMovie);
+    }
+});
+
 // Função para formatar a data
 function formatDate(date) {
     if (!date) return '-';

@@ -33,72 +33,6 @@
             <!-- Filmes serão carregados aqui via JavaScript -->
         </div>
 
-        <!-- Modal Adicionar/Editar Filme -->
-        <div class="modal fade" id="addMovieModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Adicionar Filme</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="movieForm">
-                            <input type="hidden" id="movieId">
-                            <input type="hidden" id="originalTitle">
-                            <input type="hidden" id="tmdbId">
-                            <div class="mb-3">
-                                <label for="movieSearch" class="form-label">Buscar Filme *</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="movieSearch" placeholder="Digite o título do filme...">
-                                    <button class="btn btn-outline-secondary" type="button" id="manualEntryBtn">Entrada Manual</button>
-                                </div>
-                                <div id="movieSuggestions" class="list-group mt-2" style="max-height: 200px; overflow-y: auto; display: none;"></div>
-                            </div>
-                            <div id="movieFormFields" class="d-none">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="title" class="form-label">Título *</label>
-                                            <input type="text" class="form-control" id="title" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="runtime" class="form-label">Duração (minutos)</label>
-                                            <input type="number" class="form-control" id="runtime">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="genre" class="form-label">Gênero</label>
-                                            <input type="text" class="form-control" id="genre">
-                                        </div>
-                                    </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="status" class="form-label">Status *</label>
-                                        <select class="form-select" id="status" required>
-                                            <option value="assistido">Assistido</option>
-                                            <option value="nao_assistido">Não Assistido</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="rating" class="form-label">Nota (1-10)</label>
-                                        <input type="number" class="form-control" id="rating" min="1" max="10">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="watchedDate" class="form-label">Data Assistido</label>
-                                        <input type="date" class="form-control" id="watchedDate">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="synopsis" class="form-label">Sinopse</label>
-                                <textarea class="form-control" id="synopsis" rows="3"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Salvar</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Modal de Detalhes do Filme -->
         <div class="modal fade" id="movieDetailsModal" tabindex="-1" aria-labelledby="movieDetailsModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -143,7 +77,7 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/tmdb-api.js"></script>
-    <script src="js/movieDetails.js"></script>
     <script src="js/dashboard.js"></script>
+    <script src="js/movieDetails.js"></script>
 </body>
 </html>
