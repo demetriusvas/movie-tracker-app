@@ -196,6 +196,13 @@ function editMovie() {
             movieDetailsModal.hide();
         }
 
+        if (!addMovieModal) {
+            const addModalElement = document.getElementById('addMovieModal');
+            if (addModalElement) {
+                addMovieModal = new bootstrap.Modal(addModalElement);
+            }
+        }
+
         if (addMovieModal) {
             // Preencher o formulário com os dados atuais
         const form = addMovieModal._element.querySelector('#movieForm');
