@@ -71,13 +71,6 @@ function addMovieToDOM(movie, userId) {
         </div>
     `;
     
-    moviesContainer.appendChild(movieElement);
-    
-    // Adicionar event listeners
-    const posterContainer = movieElement.querySelector('.movie-poster-container');
-    posterContainer.addEventListener('click', () => showMovieDetails(movie));
-    
-    // Adicionar event listeners
     const posterContainer = movieElement.querySelector('.movie-poster-container');
     posterContainer.addEventListener('click', () => showMovieDetails(movie));
 }
@@ -359,15 +352,6 @@ function setupEventListeners(userId) {
             document.getElementById('manualEntryBtn').textContent = 'Entrada Manual';
         });
 
-        // Configurar o botão de fechar para usar inert ao invés de aria-hidden
-        const closeButton = addMovieModal.querySelector('.btn-close');
-        if (closeButton) {
-            closeButton.addEventListener('click', () => {
-                const modal = bootstrap.Modal.getInstance(addMovieModal);
-                if (modal) {
-                    modal.hide();
-                }
-            });
-        }
+        
     }
 }
